@@ -1,7 +1,7 @@
 use crate::geo::{distance_ecef, ecef_to_geodetic, Ecef};
 use crate::log::{DetectionEvent, DetonationEvent};
 use crate::scenario::Role;
-use crate::spatia::{cell_key, CellKey};
+use crate::spatial::{cell_key, CellKey};
 use bevy_ecs::prelude::{Component, Entity, Query, Res, ResMut, Resource};
 use std::collections::{HashMap, HashSet};
 
@@ -198,7 +198,7 @@ pub fn snapshot_system(
     }
 
     // 探知処理のため、位置の配列から空間ハッシュを構築します。
-    cache.spatial_hash = crate::spatia::build_spatial_hash(&positions, detect_range.0);
+    cache.spatial_hash = crate::spatial::build_spatial_hash(&positions, detect_range.0);
 }
 
 pub fn detection_system(
@@ -310,7 +310,6 @@ pub fn detection_system(
 
         detect_state.0 = current_detected;
     }
-
 }
 
 pub fn detonation_system(

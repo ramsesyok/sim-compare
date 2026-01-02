@@ -1,4 +1,4 @@
-use crate::geo::{Ecef, distance_ecef, geodetic_to_ecef};
+use crate::geo::{distance_ecef, geodetic_to_ecef, Ecef};
 use crate::scenario::{Scenario, Waypoint};
 use crate::sim::{RoutePoint, SoaState};
 use std::collections::HashMap;
@@ -21,10 +21,11 @@ pub fn build_state(scenario: &Scenario) -> SoaState {
         for obj in &team.objects {
             let route = build_route(&obj.route);
             let (segment_ends, total_duration) = build_segment_times(&route);
-            let position = route
-                .first()
-                .map(|p| p.ecef)
-                .unwrap_or(Ecef { x: 0.0, y: 0.0, z: 0.0 });
+            let position = route.first().map(|p| p.ecef).unwrap_or(Ecef {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            });
 
             ids.push(obj.id.clone());
             team_ids.push(team.id.clone());

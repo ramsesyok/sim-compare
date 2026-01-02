@@ -1,8 +1,8 @@
-use crate::geo::Ecef;
 use crate::geo::geodetic_to_ecef;
+use crate::geo::Ecef;
+use crate::scenario::Scenario;
 use crate::scenario::Waypoint;
 use crate::sim::{ObjectState, RoutePoint};
-use crate::scenario::Scenario;
 use std::collections::HashMap;
 
 pub fn build_objects(scenario: &Scenario) -> Vec<ObjectState> {
@@ -15,10 +15,11 @@ pub fn build_objects(scenario: &Scenario) -> Vec<ObjectState> {
             let route = build_route(&obj.route);
             // 区間ごとの移動時間を計算し、後で位置補間に使います。
             let (segment_end_secs, total_duration_sec) = build_segment_times(&route);
-            let position_ecef = route
-                .first()
-                .map(|p| p.ecef)
-                .unwrap_or(Ecef { x: 0.0, y: 0.0, z: 0.0 });
+            let position_ecef = route.first().map(|p| p.ecef).unwrap_or(Ecef {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            });
 
             objects.push(ObjectState {
                 id: obj.id.clone(),

@@ -1,7 +1,7 @@
 use crate::geo::ecef_to_geodetic;
+use crate::geo::Ecef;
 use crate::scenario::Role;
 use crate::sim::{Id, SimTime, TeamId};
-use crate::geo::Ecef;
 use bevy_ecs::prelude::{Query, Res, ResMut, Resource};
 use serde::Serialize;
 use std::fs::File;

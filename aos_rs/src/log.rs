@@ -72,7 +72,10 @@ pub fn emit_timeline_log(
         });
     }
 
-    let log = TimelineLog { time_sec, positions };
+    let log = TimelineLog {
+        time_sec,
+        positions,
+    };
     write_ndjson(timeline_writer, &log)?;
 
     Ok(())
