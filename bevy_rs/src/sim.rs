@@ -1,13 +1,9 @@
 use crate::geo::{distance_ecef, ecef_to_geodetic, Ecef};
-use crate::log::{write_ndjson, DetectionEvent, DetonationEvent};
+use crate::log::{DetectionEvent, DetonationEvent};
 use crate::scenario::Role;
-use crate::spatial::{cell_key, CellKey};
-use bevy_ecs::component::Component;
-use bevy_ecs::entity::Entity;
-use bevy_ecs::world::World;
+use crate::spatia::{cell_key, CellKey};
+use bevy_ecs::prelude::{Component, Entity, Query, Res, ResMut, Resource};
 use std::collections::{HashMap, HashSet};
-use std::fs::File;
-use std::io::BufWriter;
 
 #[derive(Debug, Clone, Component)]
 pub struct Id(pub String);
@@ -53,25 +49,58 @@ pub struct DetectionInfo {
     pub distance_m: i64,
 }
 
-pub fn update_positions(world: &mut World, time_sec: f64) {
-    let mut query = world.query::<(
+#[derive(Debug, Clone, Copy, Resource)]
+pub struct SimTime {
+    pub time_sec: i64,
+}
+
+#[derive(Debug, Clone, Copy, Resource)]
+pub struct DetectRange(pub f64);
+
+#[derive(Debug, Clone, Copy, Resource)]
+pub struct BomRange(pub i64);
+
+#[derive(Debug, Default, Resource)]
+pub struct SnapshotCache {
+    pub snapshots: Vec<EntitySnapshot>,
+    pub spatial_hash: HashMap<CellKey, Vec<usize>>,
+}
+
+#[derive(Debug, Default, Resource)]
+pub struct EventBuffer {
+    pub detection_events: Vec<DetectionEvent>,
+    pub detonation_events: Vec<DetonationEvent>,
+}
+
+#[derive(Clone)]
+pub struct EntitySnapshot {
+    pub entity: Entity,
+    pub id: String,
+    pub team_id: String,
+    pub role: Role,
+    pub position: Ecef,
+}
+
+pub fn position_update_system(
+    time: Res<SimTime>,
+    mut query: Query<(
         &Role,
         &StartSec,
         &RoutePoints,
         &SegmentEndSecs,
         &TotalDurationSec,
         &mut Ecef,
-    )>();
-
-    for (role, start_sec, route, segment_end, total_duration, mut position) in query.iter_mut(world)
-    {
+    )>,
+) {
+    // hecs同様、BevyでもSystem関数としてクエリ単位の処理を分けます。
+    for (role, start_sec, route, segment_end, total_duration, mut position) in query.iter_mut() {
         *position = position_at_time(
             *role,
             start_sec.0,
             &route.0,
             &segment_end.0,
             total_duration.0,
-            time_sec,
+            time.time_sec as f64,
         );
     }
 }
@@ -149,43 +178,42 @@ fn position_at_time(
     }
 }
 
-#[derive(Clone)]
-pub struct EntitySnapshot {
-    pub entity: Entity,
-    pub id: String,
-    pub team_id: String,
-    pub role: Role,
-    pub position: Ecef,
-}
+pub fn snapshot_system(
+    detect_range: Res<DetectRange>,
+    mut cache: ResMut<SnapshotCache>,
+    query: Query<(Entity, &Id, &TeamId, &Role, &Ecef)>,
+) {
+    cache.snapshots.clear();
+    let mut positions: Vec<Ecef> = Vec::with_capacity(query.iter().count());
 
-pub fn collect_positions_and_meta(world: &mut World) -> Vec<EntitySnapshot> {
-    let mut snapshots = Vec::new();
-    let mut query = world.query::<(Entity, &Id, &TeamId, &Role, &Ecef)>();
-    for (entity, id, team_id, role, position) in query.iter(world) {
-        snapshots.push(EntitySnapshot {
+    for (entity, id, team_id, role, position) in query.iter() {
+        cache.snapshots.push(EntitySnapshot {
             entity,
             id: id.0.clone(),
             team_id: team_id.0.clone(),
             role: *role,
             position: *position,
         });
+        positions.push(*position);
     }
-    snapshots
+
+    // 探知処理のため、位置の配列から空間ハッシュを構築します。
+    cache.spatial_hash = crate::spatia::build_spatial_hash(&positions, detect_range.0);
 }
 
-pub fn emit_detection_events(
-    time_sec: i64,
-    detect_range_m: f64,
-    spatial_hash: &HashMap<CellKey, Vec<usize>>,
-    snapshots: &[EntitySnapshot],
-    world: &mut World,
-    event_writer: &mut BufWriter<File>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    if detect_range_m <= 0.0 {
-        return Ok(());
+pub fn detection_system(
+    time: Res<SimTime>,
+    detect_range: Res<DetectRange>,
+    cache: Res<SnapshotCache>,
+    mut detect_query: Query<&mut DetectState>,
+    mut events: ResMut<EventBuffer>,
+) {
+    if detect_range.0 <= 0.0 {
+        return;
     }
 
-    let scouts: Vec<EntitySnapshot> = snapshots
+    let scouts: Vec<EntitySnapshot> = cache
+        .snapshots
         .iter()
         .filter(|item| item.role == Role::Scout)
         .cloned()
@@ -193,9 +221,16 @@ pub fn emit_detection_events(
 
     // 斥候ごとに探知対象を計算し、前回との差分で発見/失探を出力します。
     for scout in scouts {
+        let mut detect_state = match detect_query.get_mut(scout.entity) {
+            Ok(state) => state,
+            Err(_) => continue,
+        };
+
+        let previous_state = detect_state.0.clone();
+        let previous_ids: HashSet<String> = previous_state.keys().cloned().collect();
         let mut current_detected: HashMap<String, DetectionInfo> = HashMap::new();
 
-        let base_key = cell_key(scout.position, detect_range_m);
+        let base_key = cell_key(scout.position, detect_range.0);
         for dx in -1..=1 {
             for dy in -1..=1 {
                 for dz in -1..=1 {
@@ -204,12 +239,12 @@ pub fn emit_detection_events(
                         y: base_key.y + dy,
                         z: base_key.z + dz,
                     };
-                    let Some(indices) = spatial_hash.get(&key) else {
+                    let Some(indices) = cache.spatial_hash.get(&key) else {
                         continue;
                     };
 
                     for &other_index in indices {
-                        let other = &snapshots[other_index];
+                        let other = &cache.snapshots[other_index];
                         if other.entity == scout.entity {
                             continue;
                         }
@@ -220,7 +255,7 @@ pub fn emit_detection_events(
 
                         // 探知範囲内かどうかを最終的に距離で判定します。
                         let distance = distance_ecef(scout.position, other.position);
-                        if distance > detect_range_m {
+                        if distance > detect_range.0 {
                             continue;
                         }
 
@@ -237,78 +272,62 @@ pub fn emit_detection_events(
             }
         }
 
-        let previous_ids = {
-            let detect_state = world
-                .get::<DetectState>(scout.entity)
-                .ok_or("detect_state missing")?;
-            detect_state.0.keys().cloned().collect::<HashSet<String>>()
-        };
         let current_ids: HashSet<String> = current_detected.keys().cloned().collect();
 
         for id in current_ids.difference(&previous_ids) {
             if let Some(info) = current_detected.get(id) {
                 // 新規発見イベントを出力します。
-                let event = DetectionEvent {
+                events.detection_events.push(DetectionEvent {
                     event_type: "detection".to_string(),
                     detection_action: "found".to_string(),
-                    time_sec,
+                    time_sec: time.time_sec,
                     scount_id: scout.id.clone(),
                     lat_deg: info.lat_deg,
                     lon_deg: info.lon_deg,
                     alt_m: info.alt_m,
                     distance_m: info.distance_m,
                     detect_id: id.clone(),
-                };
-                write_ndjson(event_writer, &event)?;
+                });
             }
         }
 
         for id in previous_ids.difference(&current_ids) {
-            let detect_state = world
-                .get::<DetectState>(scout.entity)
-                .ok_or("detect_state missing")?;
-            if let Some(info) = detect_state.0.get(id) {
+            if let Some(info) = previous_state.get(id) {
                 // 前回は見えていたが今回は見えないので失探イベントを出力します。
-                let event = DetectionEvent {
+                events.detection_events.push(DetectionEvent {
                     event_type: "detection".to_string(),
                     detection_action: "lost".to_string(),
-                    time_sec,
+                    time_sec: time.time_sec,
                     scount_id: scout.id.clone(),
                     lat_deg: info.lat_deg,
                     lon_deg: info.lon_deg,
                     alt_m: info.alt_m,
                     distance_m: info.distance_m,
                     detect_id: id.clone(),
-                };
-                write_ndjson(event_writer, &event)?;
+                });
             }
         }
 
-        if let Some(mut detect_state) = world.get_mut::<DetectState>(scout.entity) {
-            detect_state.0 = current_detected;
-        }
+        detect_state.0 = current_detected;
     }
 
-    Ok(())
 }
 
-pub fn emit_detonation_events(
-    time_sec: i64,
-    bom_range_m: i64,
-    world: &mut World,
-    event_writer: &mut BufWriter<File>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // 攻撃役が最終地点に到達した時点で1回だけ爆破イベントを出します。
-    let mut query = world.query::<(
+pub fn detonation_system(
+    time: Res<SimTime>,
+    bom_range: Res<BomRange>,
+    mut query: Query<(
         &Role,
         &StartSec,
         &TotalDurationSec,
         &Id,
         &Ecef,
         &mut HasDetonated,
-    )>();
-    for (role, start_sec, total_duration, id, position, mut has_detonated) in query.iter_mut(world)
-    {
+    )>,
+    mut events: ResMut<EventBuffer>,
+) {
+    // 攻撃役が最終地点に到達した時点で1回だけ爆破イベントを出します。
+    for (role, start_sec, total_duration, id, position, mut has_detonated) in query.iter_mut() {
         if *role != Role::Attacker {
             continue;
         }
@@ -318,21 +337,18 @@ pub fn emit_detonation_events(
         }
 
         let end_time = start_sec.0 as f64 + total_duration.0;
-        if time_sec as f64 >= end_time {
+        if time.time_sec as f64 >= end_time {
             let (lat_deg, lon_deg, alt_m) = ecef_to_geodetic(*position);
-            let event = DetonationEvent {
+            events.detonation_events.push(DetonationEvent {
                 event_type: "detonation".to_string(),
-                time_sec,
+                time_sec: time.time_sec,
                 attacker_id: id.0.clone(),
                 lat_deg,
                 lon_deg,
                 alt_m,
-                bom_range_m,
-            };
-            write_ndjson(event_writer, &event)?;
+                bom_range_m: bom_range.0,
+            });
             has_detonated.0 = true;
         }
     }
-
-    Ok(())
 }

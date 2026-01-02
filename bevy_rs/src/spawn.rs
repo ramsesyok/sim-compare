@@ -1,12 +1,10 @@
 use crate::geo::{Ecef, distance_ecef, geodetic_to_ecef};
 use crate::scenario::{Scenario, Waypoint};
 use crate::sim::{DetectState, HasDetonated, Id, RoutePoint, RoutePoints, SegmentEndSecs, StartSec, TeamId, TotalDurationSec};
-use bevy_ecs::entity::Entity;
 use bevy_ecs::world::World;
 
-pub fn build_world(scenario: &Scenario) -> (World, Vec<Entity>) {
+pub fn build_world(scenario: &Scenario) -> World {
     let mut world = World::new();
-    let mut entities = Vec::new();
 
     // ECSでは「要素ごとにコンポーネントを分ける」設計です。
     // ここでは各オブジェクトをエンティティとして生成します。
@@ -19,7 +17,7 @@ pub fn build_world(scenario: &Scenario) -> (World, Vec<Entity>) {
                 .map(|p| p.ecef)
                 .unwrap_or(Ecef { x: 0.0, y: 0.0, z: 0.0 });
 
-            let entity = world.spawn((
+            world.spawn((
                 Id(obj.id.clone()),
                 TeamId(team.id.clone()),
                 obj.role,
@@ -30,12 +28,11 @@ pub fn build_world(scenario: &Scenario) -> (World, Vec<Entity>) {
                 position,
                 DetectState::default(),
                 HasDetonated(false),
-            )).id();
-            entities.push(entity);
+            ));
         }
     }
 
-    (world, entities)
+    world
 }
 
 fn build_route(route: &[Waypoint]) -> Vec<RoutePoint> {

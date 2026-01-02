@@ -1,7 +1,8 @@
 use crate::geo::ecef_to_geodetic;
 use crate::scenario::Role;
-use bevy_ecs::entity::Entity;
-use bevy_ecs::world::World;
+use crate::sim::{Id, SimTime, TeamId};
+use crate::geo::Ecef;
+use bevy_ecs::prelude::{Query, Res, ResMut, Resource};
 use serde::Serialize;
 use std::fs::File;
 use std::io::{BufWriter, Write};
@@ -46,6 +47,11 @@ pub struct DetonationEvent {
     pub bom_range_m: i64,
 }
 
+#[derive(Debug, Default, Resource)]
+pub struct TimelineBuffer {
+    pub logs: Vec<TimelineLog>,
+}
+
 pub fn write_ndjson<T: Serialize>(
     writer: &mut BufWriter<File>,
     value: &T,
@@ -56,20 +62,15 @@ pub fn write_ndjson<T: Serialize>(
     Ok(())
 }
 
-pub fn emit_timeline_log(
-    time_sec: i64,
-    world: &World,
-    entities: &[Entity],
-    timeline_writer: &mut BufWriter<File>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut positions_log = Vec::with_capacity(entities.len());
+pub fn timeline_system(
+    time: Res<SimTime>,
+    mut timeline: ResMut<TimelineBuffer>,
+    query: Query<(&Id, &TeamId, &Role, &Ecef)>,
+) {
+    let mut positions_log = Vec::with_capacity(query.iter().count());
 
     // 1秒ごとの全オブジェクト位置をまとめて1行に出力します。
-    for &entity in entities {
-        let id = world.get::<crate::sim::Id>(entity).ok_or("id missing")?;
-        let team_id = world.get::<crate::sim::TeamId>(entity).ok_or("team_id missing")?;
-        let role = world.get::<Role>(entity).ok_or("role missing")?;
-        let position = world.get::<crate::geo::Ecef>(entity).ok_or("position missing")?;
+    for (id, team_id, role, position) in query.iter() {
         let (lat_deg, lon_deg, alt_m) = ecef_to_geodetic(*position);
         positions_log.push(TimelinePosition {
             object_id: id.0.clone(),
@@ -81,11 +82,8 @@ pub fn emit_timeline_log(
         });
     }
 
-    let log = TimelineLog {
-        time_sec,
+    timeline.logs.push(TimelineLog {
+        time_sec: time.time_sec,
         positions: positions_log,
-    };
-    write_ndjson(timeline_writer, &log)?;
-
-    Ok(())
+    });
 }
