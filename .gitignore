@@ -1,2 +1,6 @@
 *.ndjson
 target/
+aos_go/aos_go
+donburi_go/donburi_go
+ark_go/ark_go
+soa_go/soa_go
