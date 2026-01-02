@@ -2,7 +2,7 @@ mod geo;
 mod log;
 mod scenario;
 mod sim;
-mod spatia;
+mod spatial;
 mod spawn;
 
 use bevy_ecs::schedule::{IntoSystemConfigs, Schedule};
@@ -32,20 +32,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut world = spawn::build_world(&scenario);
 
     world.insert_resource(sim::SimTime { time_sec: 0 });
-    world.insert_resource(sim::DetectRange(scenario.performance.scout.detect_range_m as f64));
+    world.insert_resource(sim::DetectRange(
+        scenario.performance.scout.detect_range_m as f64,
+    ));
     world.insert_resource(sim::BomRange(scenario.performance.attacker.bom_range_m));
     world.insert_resource(sim::SnapshotCache::default());
     world.insert_resource(sim::EventBuffer::default());
     world.insert_resource(log::TimelineBuffer::default());
 
     let mut schedule = Schedule::default();
-    schedule.add_systems((
-        sim::position_update_system,
-        sim::snapshot_system,
-        sim::detection_system,
-        sim::detonation_system,
-        log::timeline_system,
-    ).chain());
+    schedule.add_systems(
+        (
+            sim::position_update_system,
+            sim::snapshot_system,
+            sim::detection_system,
+            sim::detonation_system,
+            log::timeline_system,
+        )
+            .chain(),
+    );
 
     let timeline_file = File::create(cli.timeline_log)?;
     let event_file = File::create(cli.event_log)?;

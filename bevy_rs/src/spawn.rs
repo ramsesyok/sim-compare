@@ -1,6 +1,9 @@
-use crate::geo::{Ecef, distance_ecef, geodetic_to_ecef};
+use crate::geo::{distance_ecef, geodetic_to_ecef, Ecef};
 use crate::scenario::{Scenario, Waypoint};
-use crate::sim::{DetectState, HasDetonated, Id, RoutePoint, RoutePoints, SegmentEndSecs, StartSec, TeamId, TotalDurationSec};
+use crate::sim::{
+    DetectState, HasDetonated, Id, RoutePoint, RoutePoints, SegmentEndSecs, StartSec, TeamId,
+    TotalDurationSec,
+};
 use bevy_ecs::world::World;
 
 pub fn build_world(scenario: &Scenario) -> World {
@@ -12,10 +15,11 @@ pub fn build_world(scenario: &Scenario) -> World {
         for obj in &team.objects {
             let route = build_route(&obj.route);
             let (segment_end_secs, total_duration_sec) = build_segment_times(&route);
-            let position = route
-                .first()
-                .map(|p| p.ecef)
-                .unwrap_or(Ecef { x: 0.0, y: 0.0, z: 0.0 });
+            let position = route.first().map(|p| p.ecef).unwrap_or(Ecef {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            });
 
             world.spawn((
                 Id(obj.id.clone()),

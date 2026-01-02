@@ -72,7 +72,7 @@ pub struct EventBuffer {
     pub detonation_events: Vec<DetonationEvent>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct EntitySnapshot {
     pub entity: Entity,
     pub id: String,

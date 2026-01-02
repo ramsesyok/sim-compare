@@ -7,13 +7,13 @@ use serde::Serialize;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct TimelineLog {
     pub time_sec: i64,
     pub positions: Vec<TimelinePosition>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct TimelinePosition {
     pub object_id: String,
     pub team_id: String,
@@ -23,7 +23,7 @@ pub struct TimelinePosition {
     pub alt_m: f64,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct DetectionEvent {
     pub event_type: String,
     pub detection_action: String,
@@ -36,7 +36,7 @@ pub struct DetectionEvent {
     pub detect_id: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct DetonationEvent {
     pub event_type: String,
     pub time_sec: i64,
