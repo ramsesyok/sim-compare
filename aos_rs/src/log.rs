@@ -57,12 +57,12 @@ pub fn emit_timeline_log(
     objects: &[crate::sim::ObjectState],
     timeline_writer: &mut BufWriter<File>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut positions = Vec::with_capacity(objects.len());
+    let mut positions_log = Vec::with_capacity(objects.len());
 
     // 1秒ごとの全オブジェクト位置をまとめて1行に出力します。
     for object in objects {
         let (lat_deg, lon_deg, alt_m) = crate::geo::ecef_to_geodetic(object.position_ecef);
-        positions.push(TimelinePosition {
+        positions_log.push(TimelinePosition {
             object_id: object.id.clone(),
             team_id: object.team_id.clone(),
             role: object.role.as_str().to_string(),
@@ -74,7 +74,7 @@ pub fn emit_timeline_log(
 
     let log = TimelineLog {
         time_sec,
-        positions,
+        positions: positions_log,
     };
     write_ndjson(timeline_writer, &log)?;
 
