@@ -6,8 +6,10 @@ mod spatial;
 mod spawn;
 
 use clap::Parser;
+use pprof::ProfilerGuard;
+use prost::Message;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -20,6 +22,8 @@ struct Cli {
     timeline_log: PathBuf,
     #[arg(long)]
     event_log: PathBuf,
+    #[arg(long)]
+    cpu_profile: Option<PathBuf>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -45,6 +49,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ここでは毎秒、位置更新・探知・爆破・ログ出力を順番に処理します。
     // シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
     let sim_start = Instant::now();
+    // CPUプロファイルは「処理中にどこで時間を使っているか」を調べるための仕組みなので、
+    // 指定されたときだけ開始し、最後にまとめて書き出します。
+    let cpu_guard = if cli.cpu_profile.is_some() {
+        Some(ProfilerGuard::new(100)?)
+    } else {
+        None
+    };
 
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
@@ -76,6 +87,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let sim_elapsed = sim_start.elapsed();
     eprintln!("hecs_rs: simulation elapsed: {:?}", sim_elapsed);
+
+    // CPUプロファイルの出力は、計測が終わってから1回だけまとめて行います。
+    if let (Some(path), Some(guard)) = (cli.cpu_profile, cpu_guard) {
+        let report = guard.report().build()?;
+        let profile = report.pprof()?;
+        let mut file = File::create(path)?;
+        let encoded = profile.encode_to_vec();
+        file.write_all(&encoded)?;
+    }
 
     Ok(())
 }
