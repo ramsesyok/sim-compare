@@ -1,0 +1,32 @@
+package main
+
+import "math"
+
+type CellKey struct {
+	X int
+	Y int
+	Z int
+}
+
+func buildSpatialHash(objects []ObjectState, cellSize float64) map[CellKey][]int {
+	result := make(map[CellKey][]int)
+	if cellSize <= 0 {
+		return result
+	}
+
+	// 各オブジェクトをセルに割り当て、同じセルの候補を高速に取得できるようにします。
+	for i, obj := range objects {
+		key := cellKey(obj.Position, cellSize)
+		result[key] = append(result[key], i)
+	}
+
+	return result
+}
+
+func cellKey(pos Ecef, cellSize float64) CellKey {
+	return CellKey{
+		X: int(math.Floor(pos.X / cellSize)),
+		Y: int(math.Floor(pos.Y / cellSize)),
+		Z: int(math.Floor(pos.Z / cellSize)),
+	}
+}
