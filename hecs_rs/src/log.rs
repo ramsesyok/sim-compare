@@ -5,12 +5,16 @@ use serde::Serialize;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
+// 1秒ごとの全オブジェクト位置をまとめたタイムライン行です。
+// ndjsonとして1行に出力します。
 #[derive(Serialize)]
 pub struct TimelineLog {
     pub time_sec: i64,
     pub positions: Vec<TimelinePosition>,
 }
 
+// タイムライン内の1オブジェクト分の位置情報です。
+// 役割やチーム情報も同時に記録します。
 #[derive(Serialize)]
 pub struct TimelinePosition {
     pub object_id: String,
@@ -21,6 +25,8 @@ pub struct TimelinePosition {
     pub alt_m: f64,
 }
 
+// 斥候の探知イベント（発見/失探）を表すログ行です。
+// ndjsonとして1イベント1行で出力します。
 #[derive(Serialize)]
 pub struct DetectionEvent {
     pub event_type: String,
@@ -34,6 +40,8 @@ pub struct DetectionEvent {
     pub detect_id: String,
 }
 
+// 攻撃役の爆破イベントを表すログ行です。
+// ndjsonとして1イベント1行で出力します。
 #[derive(Serialize)]
 pub struct DetonationEvent {
     pub event_type: String,

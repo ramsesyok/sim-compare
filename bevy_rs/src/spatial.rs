@@ -1,6 +1,10 @@
 use crate::geo::Ecef;
 use std::collections::HashMap;
 
+// Spatial Hashは、ECEF空間を一定サイズのセルに区切って、セルごとにオブジェクトを分類します。
+// 探知時は「同じセル＋隣接セル（3x3x3）」だけを候補にして距離判定するため、
+// 全組み合わせを調べるより高速になります。
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct CellKey {
     pub x: i32,

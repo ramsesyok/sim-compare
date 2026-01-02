@@ -5,27 +5,37 @@ use crate::spatial::{cell_key, CellKey};
 use bevy_ecs::prelude::{Component, Entity, Query, Res, ResMut, Resource};
 use std::collections::{HashMap, HashSet};
 
+// エンティティの識別子（シナリオのobject_id）を保持します。
 #[derive(Debug, Clone, Component)]
 pub struct Id(pub String);
 
+// チーム識別子を保持します。
 #[derive(Debug, Clone, Component)]
 pub struct TeamId(pub String);
 
+// 移動開始時刻（秒）を保持します。
 #[derive(Debug, Clone, Component)]
 pub struct StartSec(pub i64);
 
+// 経路区間ごとの累積終了時刻（秒）を保持します。
 #[derive(Debug, Clone, Component)]
 pub struct SegmentEndSecs(pub Vec<f64>);
 
+// 経路全体の移動時間（秒）を保持します。
 #[derive(Debug, Clone, Component)]
 pub struct TotalDurationSec(pub f64);
 
+// 斥候の探知状態（対象ID → 位置・距離）を保持します。
+// 失探判定のために前回状態として残します。
 #[derive(Debug, Clone, Default, Component)]
 pub struct DetectState(pub HashMap<String, DetectionInfo>);
 
+// 爆破イベントを既に出力したかどうかを保持します。
 #[derive(Debug, Clone, Component)]
 pub struct HasDetonated(pub bool);
 
+// 経路上の1点を保持します（緯度経度高度＋ECEF座標）。
+// 経路の補間やデバッグ確認に使うため保持しています。
 #[derive(Debug, Clone)]
 // TODO: 移動処理で使うようになったら警告抑制を解除します。
 #[allow(dead_code)]
@@ -38,9 +48,13 @@ pub struct RoutePoint {
     pub ecef: Ecef,
 }
 
+// 経路点の配列を1コンポーネントとして保持します。
+// 経路補間のため、全区間の点列を持ちます。
 #[derive(Debug, Clone, Component)]
 pub struct RoutePoints(pub Vec<RoutePoint>);
 
+// 探知イベントで使う、相手の位置と距離のスナップショットです。
+// 「発見」「失探」の判定に利用します。
 #[derive(Debug, Clone)]
 pub struct DetectionInfo {
     pub lat_deg: f64,
@@ -49,29 +63,38 @@ pub struct DetectionInfo {
     pub distance_m: i64,
 }
 
+// シミュレーションの現在時刻（秒）を保持するリソースです。
 #[derive(Debug, Clone, Copy, Resource)]
 pub struct SimTime {
     pub time_sec: i64,
 }
 
+// 斥候の探知距離（m）を保持するリソースです。
 #[derive(Debug, Clone, Copy, Resource)]
 pub struct DetectRange(pub f64);
 
+// 攻撃役の爆破半径（m）を保持するリソースです。
 #[derive(Debug, Clone, Copy, Resource)]
 pub struct BomRange(pub i64);
 
+// 探知処理のためのスナップショットと空間ハッシュを保持します。
+// System間で共有する一時データです。
 #[derive(Debug, Default, Resource)]
 pub struct SnapshotCache {
     pub snapshots: Vec<EntitySnapshot>,
     pub spatial_hash: HashMap<CellKey, Vec<usize>>,
 }
 
+// Systemが生成したイベントを一時的にためるバッファです。
+// main側でNDJSONに出力してからクリアします。
 #[derive(Debug, Default, Resource)]
 pub struct EventBuffer {
     pub detection_events: Vec<DetectionEvent>,
     pub detonation_events: Vec<DetonationEvent>,
 }
 
+// 探知やログ用に取り出した最小限のスナップショットです。
+// ECSのクエリ結果を一時的に保持します。
 #[derive(Debug, Clone)]
 pub struct EntitySnapshot {
     pub entity: Entity,

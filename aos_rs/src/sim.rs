@@ -6,6 +6,8 @@ use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufWriter;
 
+// 経路上の1点を保持します（緯度経度高度＋ECEF座標）。
+// 経路の補間やデバッグ確認に使うため保持しています。
 #[derive(Debug)]
 // TODO: 移動処理で使うようになったら警告抑制を解除します。
 #[allow(dead_code)]
@@ -18,6 +20,8 @@ pub struct RoutePoint {
     pub ecef: Ecef,
 }
 
+// AoSの1オブジェクト分の状態をまとめた構造体です。
+// ID、役割、経路、現在位置、探知状態などを1つに集約します。
 #[derive(Debug)]
 pub struct ObjectState {
     pub id: String,
@@ -32,6 +36,8 @@ pub struct ObjectState {
     pub has_detonated: bool,
 }
 
+// 探知イベントで使う、相手の位置と距離のスナップショットです。
+// 「発見」「失探」の判定に利用します。
 #[derive(Debug, Clone)]
 pub struct DetectionInfo {
     pub lat_deg: f64,

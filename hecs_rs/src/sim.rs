@@ -7,27 +7,37 @@ use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufWriter;
 
+// エンティティの識別子（シナリオのobject_id）を保持します。
 #[derive(Debug, Clone)]
 pub struct Id(pub String);
 
+// チーム識別子を保持します。
 #[derive(Debug, Clone)]
 pub struct TeamId(pub String);
 
+// 移動開始時刻（秒）を保持します。
 #[derive(Debug, Clone)]
 pub struct StartSec(pub i64);
 
+// 経路区間ごとの累積終了時刻（秒）を保持します。
 #[derive(Debug, Clone)]
 pub struct SegmentEndSecs(pub Vec<f64>);
 
+// 経路全体の移動時間（秒）を保持します。
 #[derive(Debug, Clone)]
 pub struct TotalDurationSec(pub f64);
 
+// 斥候の探知状態（対象ID → 位置・距離）を保持します。
+// 失探判定のために前回状態として残します。
 #[derive(Debug, Clone, Default)]
 pub struct DetectState(pub HashMap<String, DetectionInfo>);
 
+// 爆破イベントを既に出力したかどうかを保持します。
 #[derive(Debug, Clone)]
 pub struct HasDetonated(pub bool);
 
+// 経路上の1点を保持します（緯度経度高度＋ECEF座標）。
+// 経路の補間やデバッグ確認に使うため保持しています。
 #[derive(Debug, Clone)]
 // TODO: 移動処理で使うようになったら警告抑制を解除します。
 #[allow(dead_code)]
@@ -40,9 +50,13 @@ pub struct RoutePoint {
     pub ecef: Ecef,
 }
 
+// 経路点の配列を1コンポーネントとして保持します。
+// 経路補間のため、全区間の点列を持ちます。
 #[derive(Debug, Clone)]
 pub struct RoutePoints(pub Vec<RoutePoint>);
 
+// 探知イベントで使う、相手の位置と距離のスナップショットです。
+// 「発見」「失探」の判定に利用します。
 #[derive(Debug, Clone)]
 pub struct DetectionInfo {
     pub lat_deg: f64,
@@ -169,6 +183,8 @@ pub fn collect_snapshot_system(
     Ok(snapshots)
 }
 
+// 探知やログ用に取り出した最小限のスナップショットです。
+// ECSのクエリ結果を一時的に保持します。
 #[derive(Clone)]
 pub struct EntitySnapshot {
     pub entity: hecs::Entity,
