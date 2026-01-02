@@ -1,7 +1,5 @@
-use crate::geo::geodetic_to_ecef;
-use crate::geo::Ecef;
-use crate::scenario::Scenario;
-use crate::scenario::Waypoint;
+use crate::geo::{distance_ecef, geodetic_to_ecef, Ecef};
+use crate::scenario::{Scenario, Waypoint};
 use crate::sim::{ObjectState, RoutePoint};
 use std::collections::HashMap;
 
@@ -14,8 +12,8 @@ pub fn build_objects(scenario: &Scenario) -> Vec<ObjectState> {
             // 経路の緯度経度をECEF座標に変換して保持します。
             let route = build_route(&obj.route);
             // 区間ごとの移動時間を計算し、後で位置補間に使います。
-            let (segment_end_secs, total_duration_sec) = build_segment_times(&route);
-            let position_ecef = route.first().map(|p| p.ecef).unwrap_or(Ecef {
+            let (segment_ends, total_duration_sec) = build_segment_times(&route);
+            let position = route.first().map(|p| p.ecef).unwrap_or(Ecef {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
@@ -27,9 +25,9 @@ pub fn build_objects(scenario: &Scenario) -> Vec<ObjectState> {
                 role: obj.role,
                 start_sec: obj.start_sec,
                 route,
-                segment_end_secs,
+                segment_end_secs: segment_ends,
                 total_duration_sec,
-                position_ecef,
+                position_ecef: position,
                 detect_state: HashMap::new(),
                 has_detonated: false,
             });
@@ -68,7 +66,7 @@ fn build_segment_times(route: &[RoutePoint]) -> (Vec<f64>, f64) {
         // 区間距離と速度から移動に必要な秒数を算出します。
         let a = route[i].ecef;
         let b = route[i + 1].ecef;
-        let distance_m = crate::geo::distance_ecef(a, b);
+        let distance_m = distance_ecef(a, b);
         let speed_mps = (route[i].speeds_kph * 1000.0) / 3600.0;
         let duration = if speed_mps <= 0.0 {
             f64::INFINITY

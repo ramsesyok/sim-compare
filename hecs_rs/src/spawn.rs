@@ -14,8 +14,10 @@ pub fn build_world(scenario: &Scenario) -> (World, Vec<Entity>) {
     // ここでは各オブジェクトをエンティティとして生成します。
     for team in &scenario.teams {
         for obj in &team.objects {
+            // 経路の緯度経度をECEF座標に変換して保持します。
             let route = build_route(&obj.route);
-            let (segment_end_secs, total_duration_sec) = build_segment_times(&route);
+            // 区間ごとの移動時間を計算し、後で位置補間に使います。
+            let (segment_ends, total_duration_sec) = build_segment_times(&route);
             let position = route.first().map(|p| p.ecef).unwrap_or(Ecef {
                 x: 0.0,
                 y: 0.0,
@@ -28,7 +30,7 @@ pub fn build_world(scenario: &Scenario) -> (World, Vec<Entity>) {
                 obj.role,
                 StartSec(obj.start_sec),
                 RoutePoints(route),
-                SegmentEndSecs(segment_end_secs),
+                SegmentEndSecs(segment_ends),
                 TotalDurationSec(total_duration_sec),
                 position,
                 DetectState::default(),

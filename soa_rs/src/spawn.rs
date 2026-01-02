@@ -19,8 +19,10 @@ pub fn build_state(scenario: &Scenario) -> SoaState {
     // ここでは、ID配列・役割配列・位置配列などを個別に保持します。
     for team in &scenario.teams {
         for obj in &team.objects {
+            // 経路の緯度経度をECEF座標に変換して保持します。
             let route = build_route(&obj.route);
-            let (segment_ends, total_duration) = build_segment_times(&route);
+            // 区間ごとの移動時間を計算し、後で位置補間に使います。
+            let (segment_ends, total_duration_sec) = build_segment_times(&route);
             let position = route.first().map(|p| p.ecef).unwrap_or(Ecef {
                 x: 0.0,
                 y: 0.0,
@@ -33,7 +35,7 @@ pub fn build_state(scenario: &Scenario) -> SoaState {
             start_secs.push(obj.start_sec);
             routes.push(route);
             segment_end_secs.push(segment_ends);
-            total_duration_secs.push(total_duration);
+            total_duration_secs.push(total_duration_sec);
             positions.push(position);
             detect_state.push(HashMap::new());
             has_detonated.push(false);
