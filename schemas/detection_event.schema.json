@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/DetectionEvent",
+    "definitions": {
+        "DetectionEvent": {
+            "type": "object",
+            "description": "探知イベント",
+            "additionalProperties": false,
+            "properties": {
+                "event_type": {
+                    "type": "string",
+                    "description": "イベント種別"
+                },
+                "detection_action": {
+                    "$ref": "#/definitions/DetectionAction",
+                    "description": "探知アクション"
+                },
+                "time_sec": {
+                    "type": "integer",
+                    "description": "イベント発生時刻(秒)"
+                },
+                "scount_id": {
+                    "type": "string",
+                    "description": "斥候役ID"
+                },
+                "lat_deg": {
+                    "type": "number",
+                    "description": "探知位置の緯度(度)"
+                },
+                "lon_deg": {
+                    "type": "number",
+                    "description": "探知位置の経度(度)"
+                },
+                "alt_m": {
+                    "type": "number",
+                    "description": "探知位置の高度(m)"
+                },
+                "distance_m": {
+                    "type": "integer",
+                    "description": "探知対象までの距離(m)"
+                },
+                "detect_id": {
+                    "type": "string",
+                    "description": "探知対象ID"
+                }
+            },
+            "required": [
+                "alt_m",
+                "detect_id",
+                "distance_m",
+                "event_type",
+                "detection_action",
+                "lat_deg",
+                "lon_deg",
+                "scount_id",
+                "time_sec"
+            ],
+            "title": "DetectionEvent"
+        },
+        "DetectionAction": {
+            "type": "string",
+            "description": "探知行動種別",
+            "enum": [
+                "found",
+                "lost"
+            ],
+            "title": "DetectionAction"
+        }
+    }
+}

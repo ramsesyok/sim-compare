@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/DetonationEvent",
+    "definitions": {
+        "DetonationEvent": {
+            "type": "object",
+            "description": "爆破イベント",
+            "additionalProperties": false,
+            "properties": {
+                "event_type": {
+                    "type": "string",
+                    "description": "イベント種別"
+                },
+                "time_sec": {
+                    "type": "integer",
+                    "description": "イベント発生時刻(秒)"
+                },
+                "attacker_id": {
+                    "type": "string",
+                    "description": "攻撃役ID"
+                },
+                "lat_deg": {
+                    "type": "number",
+                    "description": "爆破位置の緯度(度)"
+                },
+                "lon_deg": {
+                    "type": "number",
+                    "description": "爆破位置の経度(度)"
+                },
+                "alt_m": {
+                    "type": "number",
+                    "description": "爆破位置の高度(m)"
+                },
+                "bom_range_m": {
+                    "type": "integer",
+                    "description": "爆破範囲(m)"
+                }
+            },
+            "required": [
+                "alt_m",
+                "attacker_id",
+                "bom_range_m",
+                "event_type",
+                "lat_deg",
+                "lon_deg",
+                "time_sec"
+            ],
+            "title": "DetonationEvent"
+        }
+    }
+}

@@ -1,0 +1,212 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/Scenario",
+    "definitions": {
+        "Scenario": {
+            "type": "object",
+            "description": "シナリオ全体情報",
+            "additionalProperties": false,
+            "properties": {
+                "performance": {
+                    "$ref": "#/definitions/Performance",
+                    "description": "性能諸元"
+                },
+                "teams": {
+                    "type": "array",
+                    "description": "チーム情報",
+                    "items": {
+                        "$ref": "#/definitions/Team"
+                    }
+                }
+            },
+            "required": [
+                "performance",
+                "teams"
+            ],
+            "title": "Scenario"
+        },
+        "Performance": {
+            "type": "object",
+            "description": "性能諸元",
+            "additionalProperties": false,
+            "properties": {
+                "scout": {
+                    "$ref": "#/definitions/Scout",
+                    "description": "斥候役の性能諸元"
+                },
+                "messenger": {
+                    "$ref": "#/definitions/Messenger",
+                    "description": "伝令役の性能諸元"
+                },
+                "attacker": {
+                    "$ref": "#/definitions/Attacker",
+                    "description": "攻撃役の性能諸元"
+                }
+            },
+            "required": [
+                "attacker",
+                "messenger",
+                "scout"
+            ],
+            "title": "Performance"
+        },
+        "Attacker": {
+            "type": "object",
+            "description": "攻撃役の攻撃性能など",
+            "additionalProperties": false,
+            "properties": {
+                "bom_range_m": {
+                    "type": "integer",
+                    "description": "攻撃影響範囲(m)"
+                }
+            },
+            "required": [
+                "bom_range_m"
+            ],
+            "title": "Attacker"
+        },
+        "Messenger": {
+            "type": "object",
+            "description": "伝令役の通信性能など",
+            "additionalProperties": false,
+            "properties": {
+                "comm_range_m": {
+                    "type": "integer",
+                    "description": "通信可能範囲(m)"
+                }
+            },
+            "required": [
+                "comm_range_m"
+            ],
+            "title": "Messenger"
+        },
+        "Scout": {
+            "type": "object",
+            "description": "斥候役の探知性能・通知性能など",
+            "additionalProperties": false,
+            "properties": {
+                "comm_range_m": {
+                    "type": "integer",
+                    "description": "通信可能範囲(m)"
+                },
+                "detect_range_m": {
+                    "type": "integer",
+                    "description": "探知可能範囲(m)"
+                }
+            },
+            "required": [
+                "comm_range_m",
+                "detect_range_m"
+            ],
+            "title": "Scout"
+        },
+        "Team": {
+            "type": "object",
+            "description": "チーム情報",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "チーム識別子"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "チーム名"
+                },
+                "objects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Object"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "objects"
+            ],
+            "title": "Team"
+        },
+        "Object": {
+            "type": "object",
+            "description": "オブジェクトシナリオ情報",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "オブジェクト識別子"
+                },
+                "role": {
+                    "$ref": "#/definitions/Role",
+                    "description": "オブジェクトの役割"
+                },
+                "start_sec": {
+                    "type": "integer",
+                    "description": "シナリオ開始からの移動開始時間(秒)"
+                },
+                "route": {
+                    "type": "array",
+                    "description": "移動経路情報",
+                    "items": {
+                        "$ref": "#/definitions/Waypoint"
+                    }
+                },
+                "network": {
+                    "type": "array",
+                    "description": "オブジェクトが利用可能な伝令役のオブジェクトID一覧",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "role",
+                "start_sec",
+                "route"
+            ],
+            "title": "Object"
+        },
+        "Waypoint": {
+            "type": "object",
+            "description": "移動経路の経路点情報",
+            "additionalProperties": false,
+            "properties": {
+                "lat_deg": {
+                    "type": "number",
+                    "description": "緯度(度)"
+                },
+                "lon_deg": {
+                    "type": "number",
+                    "description": "経度(度)"
+                },
+                "alt_m": {
+                    "type": "number",
+                    "description": "高度(m)"
+                },
+                "speeds_kph": {
+                    "type": "number",
+                    "description": "移動速度(km/h)"
+                }
+            },
+            "required": [
+                "alt_m",
+                "lat_deg",
+                "lon_deg",
+                "speeds_kph"
+            ],
+            "title": "Waypoint"
+        },
+        "Role": {
+            "type": "string",
+            "description": "オブジェクトの役割",
+            "enum": [
+                "commander",
+                "scout",
+                "messenger",
+                "attacker"
+            ],
+            "title": "Role"
+        }
+    }
+}
