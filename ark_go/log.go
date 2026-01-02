@@ -56,6 +56,10 @@ func newEncoder(writer io.Writer) *json.Encoder {
 	return json.NewEncoder(writer)
 }
 
+func writeNDJSON(encoder *json.Encoder, value any) error {
+	return encoder.Encode(value)
+}
+
 func flushEventBuffer(world *ecs.World, encoder *json.Encoder) error {
 	res := ecs.NewResource[EventBuffer](world)
 	buffer := res.Get()
@@ -64,12 +68,12 @@ func flushEventBuffer(world *ecs.World, encoder *json.Encoder) error {
 	}
 
 	for _, event := range buffer.DetectionEvents {
-		if err := encoder.Encode(event); err != nil {
+		if err := writeNDJSON(encoder, event); err != nil {
 			return err
 		}
 	}
 	for _, event := range buffer.DetonationEvents {
-		if err := encoder.Encode(event); err != nil {
+		if err := writeNDJSON(encoder, event); err != nil {
 			return err
 		}
 	}
@@ -87,7 +91,7 @@ func flushTimelineBuffer(world *ecs.World, encoder *json.Encoder) error {
 	}
 
 	for _, log := range buffer.Logs {
-		if err := encoder.Encode(log); err != nil {
+		if err := writeNDJSON(encoder, log); err != nil {
 			return err
 		}
 	}

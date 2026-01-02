@@ -312,7 +312,9 @@ type TimelineSystem struct {
 	filter      *ecs.Filter4[Id, TeamId, RoleComp, Position]
 	timeRes     ecs.Resource[SimTime]
 	timelineRes ecs.Resource[TimelineBuffer]
-	positions   []TimelinePosition
+	// ark_goではSystemが構造体として状態を持てるため、タイムライン用の一時配列は
+	// TimelineBufferではなくSystem内に保持して再利用しています。
+	positions []TimelinePosition
 }
 
 func (s *TimelineSystem) Initialize(w *ecs.World) {

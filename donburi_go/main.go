@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
@@ -99,8 +98,8 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 
 	eventWriter := bufio.NewWriter(eventFile)
 	timelineWriter := bufio.NewWriter(timelineFile)
-	eventEncoder := json.NewEncoder(eventWriter)
-	timelineEncoder := json.NewEncoder(timelineWriter)
+	eventEncoder := newEncoder(eventWriter)
+	timelineEncoder := newEncoder(timelineWriter)
 
 	endSec := 24 * 60 * 60
 

@@ -1,6 +1,9 @@
 package main
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+)
 
 type TimelineLog struct {
 	TimeSec   int                `json:"time_sec"`
@@ -39,13 +42,19 @@ type DetonationEvent struct {
 }
 
 type TimelineBuffer struct {
-	Logs             []TimelineLog
+	Logs []TimelineLog
+	// donburiはSystemが関数なので内部に状態を持ちにくく、毎回の割り当てを避けるために
+	// タイムラインの一時配列をこのバッファに保持して再利用しています。
 	PositionsScratch []TimelinePosition
 }
 
 type EventBuffer struct {
 	DetectionEvents  []DetectionEvent
 	DetonationEvents []DetonationEvent
+}
+
+func newEncoder(writer io.Writer) *json.Encoder {
+	return json.NewEncoder(writer)
 }
 
 func writeNDJSON(encoder *json.Encoder, value any) error {
