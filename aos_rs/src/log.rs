@@ -1,3 +1,4 @@
+use crate::geo::ecef_to_geodetic;
 use serde::Serialize;
 use std::fs::File;
 use std::io::{BufWriter, Write};
@@ -61,7 +62,7 @@ pub fn emit_timeline_log(
 
     // 1秒ごとの全オブジェクト位置をまとめて1行に出力します。
     for object in objects {
-        let (lat_deg, lon_deg, alt_m) = crate::geo::ecef_to_geodetic(object.position_ecef);
+        let (lat_deg, lon_deg, alt_m) = ecef_to_geodetic(object.position_ecef);
         positions_log.push(TimelinePosition {
             object_id: object.id.clone(),
             team_id: object.team_id.clone(),
