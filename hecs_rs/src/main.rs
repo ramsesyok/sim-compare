@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let sim_elapsed = sim_start.elapsed();
-    eprintln!("simulation elapsed: {:?}", sim_elapsed);
+    eprintln!("hecs_rs: simulation elapsed: {:?}", sim_elapsed);
 
     Ok(())
 }
