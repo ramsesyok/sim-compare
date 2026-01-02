@@ -2,7 +2,6 @@ use crate::geo::{distance_ecef, ecef_to_geodetic, Ecef};
 use crate::log::{write_ndjson, DetectionEvent, DetonationEvent};
 use crate::scenario::Role;
 use crate::spatial::{cell_key, CellKey};
-use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufWriter;
@@ -35,16 +34,6 @@ pub struct ObjectState {
     pub position_ecef: Ecef,
     pub detect_state: HashMap<String, DetectionInfo>,
     pub has_detonated: bool,
-}
-
-// 並列処理で安全に読み取るための、オブジェクトの軽量スナップショットです。
-// 参照先の共有や可変借用を避け、初心者でも理解しやすい形にしています。
-#[derive(Clone)]
-struct ObjectSnapshot {
-    id: String,
-    team_id: String,
-    role: Role,
-    position_ecef: Ecef,
 }
 
 // 探知イベントで使う、相手の位置と距離のスナップショットです。
@@ -137,143 +126,99 @@ pub fn emit_detection_events(
     }
 
     // 斥候ごとに探知対象を計算し、前回との差分で発見/失探を出力します。
-    // 並列化によって探知判定の重い部分を分散しますが、ログ出力は順序を保つために直列で行います。
-    let snapshots: Vec<ObjectSnapshot> = objects
-        .iter()
-        .map(|object| ObjectSnapshot {
-            id: object.id.clone(),
-            team_id: object.team_id.clone(),
-            role: object.role,
-            position_ecef: object.position_ecef,
-        })
-        .collect();
-    let previous_detect_states: Vec<Option<HashMap<String, DetectionInfo>>> = objects
-        .iter()
-        .map(|object| {
-            if object.role == Role::Scout {
-                Some(object.detect_state.clone())
-            } else {
-                None
-            }
-        })
-        .collect();
+    for i in 0..objects.len() {
+        if objects[i].role != Role::Scout {
+            continue;
+        }
 
-    struct DetectionWorkResult {
-        scout_index: usize,
-        current_detected: HashMap<String, DetectionInfo>,
-        events: Vec<DetectionEvent>,
-    }
+        let scout_pos = objects[i].position_ecef;
+        let scout_team = objects[i].team_id.clone();
+        let scout_id = objects[i].id.clone();
 
-    let mut results: Vec<DetectionWorkResult> = (0..objects.len())
-        .into_par_iter()
-        .filter_map(|i| {
-            let scout = &snapshots[i];
-            if scout.role != Role::Scout {
-                return None;
-            }
+        let mut current_detected: HashMap<String, DetectionInfo> = HashMap::new();
 
-            let scout_pos = scout.position_ecef;
-            let scout_team = &scout.team_id;
-            let scout_id = &scout.id;
+        let base_key = cell_key(scout_pos, detect_range_m);
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                for dz in -1..=1 {
+                    let key = CellKey {
+                        x: base_key.x + dx,
+                        y: base_key.y + dy,
+                        z: base_key.z + dz,
+                    };
+                    let Some(indices) = spatial_hash.get(&key) else {
+                        continue;
+                    };
 
-            let mut current_detected: HashMap<String, DetectionInfo> = HashMap::new();
-
-            let base_key = cell_key(scout_pos, detect_range_m);
-            for dx in -1..=1 {
-                for dy in -1..=1 {
-                    for dz in -1..=1 {
-                        let key = CellKey {
-                            x: base_key.x + dx,
-                            y: base_key.y + dy,
-                            z: base_key.z + dz,
-                        };
-                        let Some(indices) = spatial_hash.get(&key) else {
+                    for &other_index in indices {
+                        if other_index == i {
                             continue;
-                        };
-
-                        for &other_index in indices {
-                            if other_index == i {
-                                continue;
-                            }
-
-                            let other = &snapshots[other_index];
-                            if other.team_id == *scout_team {
-                                continue;
-                            }
-
-                            // 探知範囲内かどうかを最終的に距離で判定します。
-                            let distance = distance_ecef(scout_pos, other.position_ecef);
-                            if distance > detect_range_m {
-                                continue;
-                            }
-
-                            let (lat_deg, lon_deg, alt_m) =
-                                ecef_to_geodetic(other.position_ecef);
-                            let info = DetectionInfo {
-                                lat_deg,
-                                lon_deg,
-                                alt_m,
-                                distance_m: distance.round() as i64,
-                            };
-                            current_detected.insert(other.id.clone(), info);
                         }
+
+                        let other = &objects[other_index];
+                        if other.team_id == scout_team {
+                            continue;
+                        }
+
+                        // 探知範囲内かどうかを最終的に距離で判定します。
+                        let distance = distance_ecef(scout_pos, other.position_ecef);
+                        if distance > detect_range_m {
+                            continue;
+                        }
+
+                        let (lat_deg, lon_deg, alt_m) = ecef_to_geodetic(other.position_ecef);
+                        let info = DetectionInfo {
+                            lat_deg,
+                            lon_deg,
+                            alt_m,
+                            distance_m: distance.round() as i64,
+                        };
+                        current_detected.insert(other.id.clone(), info);
                     }
                 }
             }
-
-            let previous_detect_state = previous_detect_states[i].as_ref().expect("scout");
-            let previous_ids: HashSet<String> = previous_detect_state.keys().cloned().collect();
-            let current_ids: HashSet<String> = current_detected.keys().cloned().collect();
-            let mut events = Vec::new();
-
-            for id in current_ids.difference(&previous_ids) {
-                if let Some(info) = current_detected.get(id) {
-                    // 新規発見イベントを出力します。
-                    events.push(DetectionEvent {
-                        event_type: "detection".to_string(),
-                        detection_action: "found".to_string(),
-                        time_sec,
-                        scount_id: scout_id.clone(),
-                        lat_deg: info.lat_deg,
-                        lon_deg: info.lon_deg,
-                        alt_m: info.alt_m,
-                        distance_m: info.distance_m,
-                        detect_id: id.clone(),
-                    });
-                }
-            }
-
-            for id in previous_ids.difference(&current_ids) {
-                if let Some(info) = previous_detect_state.get(id) {
-                    // 前回は見えていたが今回は見えないので失探イベントを出力します。
-                    events.push(DetectionEvent {
-                        event_type: "detection".to_string(),
-                        detection_action: "lost".to_string(),
-                        time_sec,
-                        scount_id: scout_id.clone(),
-                        lat_deg: info.lat_deg,
-                        lon_deg: info.lon_deg,
-                        alt_m: info.alt_m,
-                        distance_m: info.distance_m,
-                        detect_id: id.clone(),
-                    });
-                }
-            }
-
-            Some(DetectionWorkResult {
-                scout_index: i,
-                current_detected,
-                events,
-            })
-        })
-        .collect();
-
-    results.sort_by_key(|result| result.scout_index);
-    for result in results {
-        for event in result.events {
-            write_ndjson(event_writer, &event)?;
         }
-        objects[result.scout_index].detect_state = result.current_detected;
+
+        let previous_ids: HashSet<String> = objects[i].detect_state.keys().cloned().collect();
+        let current_ids: HashSet<String> = current_detected.keys().cloned().collect();
+
+        for id in current_ids.difference(&previous_ids) {
+            if let Some(info) = current_detected.get(id) {
+                // 新規発見イベントを出力します。
+                let event = DetectionEvent {
+                    event_type: "detection".to_string(),
+                    detection_action: "found".to_string(),
+                    time_sec,
+                    scount_id: scout_id.clone(),
+                    lat_deg: info.lat_deg,
+                    lon_deg: info.lon_deg,
+                    alt_m: info.alt_m,
+                    distance_m: info.distance_m,
+                    detect_id: id.clone(),
+                };
+                write_ndjson(event_writer, &event)?;
+            }
+        }
+
+        for id in previous_ids.difference(&current_ids) {
+            if let Some(info) = objects[i].detect_state.get(id) {
+                // 前回は見えていたが今回は見えないので失探イベントを出力します。
+                let event = DetectionEvent {
+                    event_type: "detection".to_string(),
+                    detection_action: "lost".to_string(),
+                    time_sec,
+                    scount_id: scout_id.clone(),
+                    lat_deg: info.lat_deg,
+                    lon_deg: info.lon_deg,
+                    alt_m: info.alt_m,
+                    distance_m: info.distance_m,
+                    detect_id: id.clone(),
+                };
+                write_ndjson(event_writer, &event)?;
+            }
+        }
+
+        objects[i].detect_state = current_detected;
     }
 
     Ok(())
