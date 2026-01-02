@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -61,6 +62,9 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 
 	endSec := 24 * 60 * 60
 
+	// シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+	start := time.Now()
+
 	for timeSec := 0; timeSec <= endSec; timeSec++ {
 		// まず全オブジェクトの位置を更新します。
 		updatePositions(&state, float64(timeSec))
@@ -83,6 +87,8 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 			return err
 		}
 	}
+
+	fmt.Fprintf(os.Stderr, "simulation elapsed: %s\n", time.Since(start))
 
 	return nil
 }

@@ -9,6 +9,7 @@ use clap::Parser;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::time::Instant;
 
 #[derive(Parser, Debug)]
 #[command(name = "hecs_rs")]
@@ -42,6 +43,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // ECSは「振る舞いごとにコンポーネントを組み合わせる」設計で、
     // ここでは毎秒、位置更新・探知・爆破・ログ出力を順番に処理します。
+    // シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+    let sim_start = Instant::now();
+
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
         sim::position_update_system(&mut world, time_sec as f64)?;
@@ -69,6 +73,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // 全オブジェクトの位置をタイムラインログへ出力します。
         log::emit_timeline_log(time_sec, &world, &entities, &mut timeline_writer)?;
     }
+
+    let sim_elapsed = sim_start.elapsed();
+    eprintln!("simulation elapsed: {:?}", sim_elapsed);
 
     Ok(())
 }

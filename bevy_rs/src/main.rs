@@ -10,6 +10,7 @@ use clap::Parser;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::time::Instant;
 
 #[derive(Parser, Debug)]
 #[command(name = "bevy_rs")]
@@ -61,6 +62,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Bevy ECSではSystemとして処理を分割し、Scheduleで順番を明示します。
     // ここではリアルタイム実行は行わず、forループで秒刻みの処理を高速に回すだけです。
+    // シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+    let sim_start = Instant::now();
+
     for time_sec in 0..=end_sec {
         // Systemから参照される時刻リソースを更新します。
         if let Some(mut time) = world.get_resource_mut::<sim::SimTime>() {
@@ -89,6 +93,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
+
+    let sim_elapsed = sim_start.elapsed();
+    eprintln!("simulation elapsed: {:?}", sim_elapsed);
 
     Ok(())
 }

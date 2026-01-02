@@ -9,6 +9,7 @@ use clap::Parser;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::time::Instant;
 
 #[derive(Parser, Debug)]
 #[command(name = "soa_rs")]
@@ -43,6 +44,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // SoAは「属性ごとに配列を持つ」設計で、
     // ここでは位置配列・役割配列・経路配列などを別々に管理しています。
     // 初心者でも追いやすいように、毎秒すべての要素を順番に更新しています。
+    // シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+    let sim_start = Instant::now();
+
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
         sim::update_positions(&mut state, time_sec as f64);
@@ -72,6 +76,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &mut timeline_writer,
         )?;
     }
+
+    let sim_elapsed = sim_start.elapsed();
+    eprintln!("simulation elapsed: {:?}", sim_elapsed);
 
     Ok(())
 }

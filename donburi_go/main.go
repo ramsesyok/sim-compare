@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	ecsLib "github.com/yohamta/donburi/ecs"
@@ -62,6 +63,9 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 
 	endSec := 24 * 60 * 60
 
+	// シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+	start := time.Now()
+
 	for timeSec := 0; timeSec <= endSec; timeSec++ {
 		// Systemが参照する時刻リソースを更新します。
 		setSimTime(world, timeSec)
@@ -79,6 +83,8 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 			return err
 		}
 	}
+
+	fmt.Fprintf(os.Stderr, "simulation elapsed: %s\n", time.Since(start))
 
 	return nil
 }

@@ -9,6 +9,7 @@ use clap::Parser;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::time::Instant;
 
 #[derive(Parser, Debug)]
 #[command(name = "aos_rs")]
@@ -43,6 +44,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // AoSは「1つのオブジェクトに必要な情報をまとめて持つ」設計で、
     // ここでは各オブジェクトの状態（位置・経路・検知履歴など）を1つの構造体に詰めています。
     // 初心者でも追いやすいように、毎秒すべてのオブジェクトを順番に更新しています。
+    // シミュレーション全体の処理時間を計測します（ログ出力完了まで）。
+    let sim_start = Instant::now();
+
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
         for object in objects.iter_mut() {
@@ -67,6 +71,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // 全オブジェクトの位置をタイムラインログへ出力します。
         log::emit_timeline_log(time_sec, &objects, &mut timeline_writer)?;
     }
+
+    let sim_elapsed = sim_start.elapsed();
+    eprintln!("simulation elapsed: {:?}", sim_elapsed);
 
     Ok(())
 }
