@@ -22,6 +22,7 @@ type BomRange struct {
 
 type SnapshotCache struct {
 	Snapshots   []EntitySnapshot
+	Positions   []Ecef
 	SpatialHash map[CellKey][]int
 }
 
@@ -93,7 +94,7 @@ func snapshotSystem(ecs *ecsLib.ECS) {
 	cacheEntry := SnapshotCacheComponent.MustFirst(ecs.World)
 	cache := SnapshotCacheComponent.Get(cacheEntry)
 	cache.Snapshots = cache.Snapshots[:0]
-	positions := make([]Ecef, 0)
+	cache.Positions = cache.Positions[:0]
 
 	query := donburi.NewQuery(filter.Contains(IdComponent, TeamIdComponent, RoleComponent, PositionComponent))
 	for entry := range query.Iter(ecs.World) {
@@ -104,11 +105,11 @@ func snapshotSystem(ecs *ecsLib.ECS) {
 			Role:     RoleComponent.GetValue(entry),
 			Position: PositionComponent.GetValue(entry),
 		})
-		positions = append(positions, PositionComponent.GetValue(entry))
+		cache.Positions = append(cache.Positions, PositionComponent.GetValue(entry))
 	}
 
 	// 探知処理のため、位置の配列から空間ハッシュを構築します。
-	cache.SpatialHash = buildSpatialHash(positions, detectRange)
+	cache.SpatialHash = buildSpatialHash(cache.Positions, detectRange, cache.SpatialHash)
 }
 
 func detectionSystem(ecs *ecsLib.ECS) {
@@ -261,12 +262,12 @@ func timelineSystem(ecs *ecsLib.ECS) {
 	buffer := TimelineBufferComponent.Get(TimelineBufferComponent.MustFirst(ecs.World))
 	currentTime := getTimeSec(ecs.World)
 
-	positions := make([]TimelinePosition, 0)
+	buffer.PositionsScratch = buffer.PositionsScratch[:0]
 	query := donburi.NewQuery(filter.Contains(IdComponent, TeamIdComponent, RoleComponent, PositionComponent))
 	for entry := range query.Iter(ecs.World) {
 		pos := PositionComponent.GetValue(entry)
 		lat, lon, alt := ecefToGeodetic(pos)
-		positions = append(positions, TimelinePosition{
+		buffer.PositionsScratch = append(buffer.PositionsScratch, TimelinePosition{
 			ObjectID: IdComponent.GetValue(entry),
 			TeamID:   TeamIdComponent.GetValue(entry),
 			Role:     string(RoleComponent.GetValue(entry)),
@@ -278,7 +279,7 @@ func timelineSystem(ecs *ecsLib.ECS) {
 
 	buffer.Logs = append(buffer.Logs, TimelineLog{
 		TimeSec:   currentTime,
-		Positions: positions,
+		Positions: buffer.PositionsScratch,
 	})
 }
 

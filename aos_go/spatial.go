@@ -8,8 +8,15 @@ type CellKey struct {
 	Z int
 }
 
-func buildSpatialHash(objects []ObjectState, cellSize float64) map[CellKey][]int {
-	result := make(map[CellKey][]int)
+func buildSpatialHash(objects []ObjectState, cellSize float64, reuse map[CellKey][]int) map[CellKey][]int {
+	result := reuse
+	if result == nil {
+		result = make(map[CellKey][]int)
+	} else {
+		for key, indices := range result {
+			result[key] = indices[:0]
+		}
+	}
 	if cellSize <= 0 {
 		return result
 	}

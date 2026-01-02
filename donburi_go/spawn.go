@@ -33,6 +33,7 @@ func registerResources(world donburiWorld, scenario *Scenario) {
 	BomRangeComponent.SetValue(entry, BomRange{Value: scenario.Performance.Attacker.BomRangeM})
 	SnapshotCacheComponent.SetValue(entry, SnapshotCache{
 		Snapshots:   nil,
+		Positions:   nil,
 		SpatialHash: make(map[CellKey][]int),
 	})
 	EventBufferComponent.SetValue(entry, EventBuffer{})

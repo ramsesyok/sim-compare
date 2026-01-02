@@ -61,6 +61,7 @@ type BomRange struct {
 
 type SnapshotCache struct {
 	Snapshots   []EntitySnapshot
+	Positions   []Ecef
 	SpatialHash map[CellKey][]int
 }
 
@@ -117,7 +118,7 @@ func (s *SnapshotSystem) Initialize(w *ecs.World) {
 func (s *SnapshotSystem) Update(w *ecs.World) {
 	snap := s.snapshotRes.Get()
 	snap.Snapshots = snap.Snapshots[:0]
-	positions := make([]Ecef, 0)
+	snap.Positions = snap.Positions[:0]
 
 	query := s.filter.Query()
 	for query.Next() {
@@ -129,12 +130,12 @@ func (s *SnapshotSystem) Update(w *ecs.World) {
 			Role:     role.Value,
 			Position: position.Value,
 		})
-		positions = append(positions, position.Value)
+		snap.Positions = append(snap.Positions, position.Value)
 	}
 
 	detectRange := s.detectRes.Get().Value
 	// 探知処理のため、位置の配列から空間ハッシュを構築します。
-	snap.SpatialHash = buildSpatialHash(positions, detectRange)
+	snap.SpatialHash = buildSpatialHash(snap.Positions, detectRange, snap.SpatialHash)
 }
 
 func (s *SnapshotSystem) Finalize(w *ecs.World) {}
@@ -311,6 +312,7 @@ type TimelineSystem struct {
 	filter      *ecs.Filter4[Id, TeamId, RoleComp, Position]
 	timeRes     ecs.Resource[SimTime]
 	timelineRes ecs.Resource[TimelineBuffer]
+	positions   []TimelinePosition
 }
 
 func (s *TimelineSystem) Initialize(w *ecs.World) {
@@ -324,11 +326,11 @@ func (s *TimelineSystem) Update(w *ecs.World) {
 	currentTime := s.timeRes.Get().TimeSec
 	buffer := s.timelineRes.Get()
 
-	positions := make([]TimelinePosition, 0)
+	s.positions = s.positions[:0]
 	for query.Next() {
 		id, teamID, role, position := query.Get()
 		lat, lon, alt := ecefToGeodetic(position.Value)
-		positions = append(positions, TimelinePosition{
+		s.positions = append(s.positions, TimelinePosition{
 			ObjectID: id.Value,
 			TeamID:   teamID.Value,
 			Role:     string(role.Value),
@@ -340,7 +342,7 @@ func (s *TimelineSystem) Update(w *ecs.World) {
 
 	buffer.Logs = append(buffer.Logs, TimelineLog{
 		TimeSec:   currentTime,
-		Positions: positions,
+		Positions: s.positions,
 	})
 }
 

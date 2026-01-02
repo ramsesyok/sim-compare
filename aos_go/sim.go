@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"math"
-	"os"
 )
 
 type DetectionInfo struct {
@@ -72,12 +71,10 @@ func positionAtTime(object ObjectState, timeSec float64) Ecef {
 	}
 }
 
-func emitDetectionEvents(timeSec int, detectRange float64, spatialHash map[CellKey][]int, objects []ObjectState, eventFile *os.File) error {
+func emitDetectionEvents(timeSec int, detectRange float64, spatialHash map[CellKey][]int, objects []ObjectState, encoder *json.Encoder) error {
 	if detectRange <= 0 {
 		return nil
 	}
-
-	encoder := json.NewEncoder(eventFile)
 
 	for i := range objects {
 		if objects[i].Role != RoleScout {
@@ -185,9 +182,7 @@ func emitDetectionEvents(timeSec int, detectRange float64, spatialHash map[CellK
 	return nil
 }
 
-func emitDetonationEvents(timeSec int, bomRange int, objects []ObjectState, eventFile *os.File) error {
-	encoder := json.NewEncoder(eventFile)
-
+func emitDetonationEvents(timeSec int, bomRange int, objects []ObjectState, encoder *json.Encoder) error {
 	// 攻撃役が最終地点に到達した時点で1回だけ爆破イベントを出します。
 	for i := range objects {
 		if objects[i].Role != RoleAttacker {

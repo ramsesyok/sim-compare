@@ -28,6 +28,7 @@ func registerResources(world *ecs.World, scenario *Scenario) {
 	resSnapshot := ecs.NewResource[SnapshotCache](world)
 	resSnapshot.Add(&SnapshotCache{
 		Snapshots:   nil,
+		Positions:   nil,
 		SpatialHash: make(map[CellKey][]int),
 	})
 

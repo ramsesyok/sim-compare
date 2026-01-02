@@ -39,7 +39,8 @@ type DetonationEvent struct {
 }
 
 type TimelineBuffer struct {
-	Logs []TimelineLog
+	Logs             []TimelineLog
+	PositionsScratch []TimelinePosition
 }
 
 type EventBuffer struct {

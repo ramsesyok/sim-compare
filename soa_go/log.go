@@ -1,9 +1,6 @@
 package main
 
-import (
-	"encoding/json"
-	"os"
-)
+import "encoding/json"
 
 type TimelineLog struct {
 	TimeSec   int                `json:"time_sec"`
@@ -41,8 +38,8 @@ type DetonationEvent struct {
 	BomRangeM  int     `json:"bom_range_m"`
 }
 
-func emitTimelineLog(timeSec int, state *SoaState, timelineFile *os.File) error {
-	positions := make([]TimelinePosition, 0, len(state.IDs))
+func emitTimelineLog(timeSec int, state *SoaState, positions []TimelinePosition, encoder *json.Encoder) ([]TimelinePosition, error) {
+	positions = positions[:0]
 
 	// 1秒ごとの全オブジェクト位置をまとめて1行に出力します。
 	for i := range state.IDs {
@@ -62,6 +59,8 @@ func emitTimelineLog(timeSec int, state *SoaState, timelineFile *os.File) error 
 		Positions: positions,
 	}
 
-	encoder := json.NewEncoder(timelineFile)
-	return encoder.Encode(log)
+	if err := encoder.Encode(log); err != nil {
+		return positions, err
+	}
+	return positions, nil
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"os"
+	"io"
 
 	"github.com/mlange-42/ark/ecs"
 )
@@ -52,8 +52,8 @@ type EventBuffer struct {
 	DetonationEvents []DetonationEvent
 }
 
-func newEncoder(file *os.File) *json.Encoder {
-	return json.NewEncoder(file)
+func newEncoder(writer io.Writer) *json.Encoder {
+	return json.NewEncoder(writer)
 }
 
 func flushEventBuffer(world *ecs.World, encoder *json.Encoder) error {
