@@ -51,10 +51,11 @@ pub struct DetectionInfo {
     pub distance_m: i64,
 }
 
-pub fn update_positions(
+pub fn position_update_system(
     world: &mut World,
     time_sec: f64,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    // hecsには標準のSystem型がないため、クエリ単位の関数をSystemとして扱います。
     let mut query = world.query::<(
         &Role,
         &StartSec,
@@ -151,7 +152,7 @@ fn position_at_time(
     }
 }
 
-pub fn collect_positions_and_meta(
+pub fn collect_snapshot_system(
     world: &World,
 ) -> Result<Vec<EntitySnapshot>, Box<dyn std::error::Error>> {
     let mut snapshots = Vec::new();
@@ -177,7 +178,7 @@ pub struct EntitySnapshot {
     pub position: Ecef,
 }
 
-pub fn emit_detection_events(
+pub fn detection_system(
     time_sec: i64,
     detect_range_m: f64,
     spatial_hash: &HashMap<CellKey, Vec<usize>>,
@@ -292,7 +293,7 @@ pub fn emit_detection_events(
     Ok(())
 }
 
-pub fn emit_detonation_events(
+pub fn detonation_system(
     time_sec: i64,
     bom_range_m: i64,
     world: &mut World,

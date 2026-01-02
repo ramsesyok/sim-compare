@@ -44,16 +44,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ここでは毎秒、位置更新・探知・爆破・ログ出力を順番に処理します。
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
-        sim::update_positions(&mut world, time_sec as f64)?;
+        sim::position_update_system(&mut world, time_sec as f64)?;
 
-        let snapshots = sim::collect_positions_and_meta(&world)?;
+        // 探知処理のために、位置とメタ情報のスナップショットをクエリで構築します。
+        let snapshots = sim::collect_snapshot_system(&world)?;
         let positions: Vec<geo::Ecef> = snapshots.iter().map(|item| item.position).collect();
 
         // 空間ハッシュを作り、近傍探索を高速化します。
         let spatial_hash = spatial::build_spatial_hash(&positions, detect_range_m);
 
         // 斥候の探知イベントを判定してイベントログへ出力します。
-        sim::emit_detection_events(
+        sim::detection_system(
             time_sec,
             detect_range_m,
             &spatial_hash,
@@ -63,7 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )?;
 
         // 攻撃役の爆破イベントを判定してイベントログへ出力します。
-        sim::emit_detonation_events(time_sec, bom_range_m, &mut world, &mut event_writer)?;
+        sim::detonation_system(time_sec, bom_range_m, &mut world, &mut event_writer)?;
 
         // 全オブジェクトの位置をタイムラインログへ出力します。
         log::emit_timeline_log(time_sec, &world, &entities, &mut timeline_writer)?;
