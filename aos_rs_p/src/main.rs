@@ -9,6 +9,7 @@ use clap::Parser;
 use pprof::ProfilerGuard;
 use prost::Message;
 use rayon::prelude::*;
+use std::env;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
@@ -61,9 +62,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for time_sec in 0..=end_sec {
         // まず全オブジェクトの位置を更新します。
-        // 並列化によって1秒あたりの更新を分散し、CPUコアを有効活用します。
-        objects.par_iter_mut().for_each(|object| {
-            object.position_ecef = sim::position_at_time(object, time_sec as f64);
+        // 並列化の粒度を大きくしてスレッド起動の負担を減らすため、
+        // 連続した要素を一定数ずつのチャンクに分けて処理します。
+        // 環境変数でチャンクサイズを変えられるようにして計測しやすくします。
+        let chunk_size = env::var("CHUNK_SIZE")
+            .ok()
+            .and_then(|value| value.parse::<usize>().ok())
+            .filter(|value| *value > 0)
+            .unwrap_or(256);
+        objects.par_chunks_mut(chunk_size).for_each(|chunk| {
+            for object in chunk {
+                object.position_ecef = sim::position_at_time(object, time_sec as f64);
+            }
         });
 
         // 空間ハッシュを作り、近傍探索を高速化します。
