@@ -146,7 +146,7 @@ func runSimulation(scenarioPath, timelinePath, eventPath string) error {
 		return err
 	}
 
-	fmt.Fprintf(os.Stderr, "aos_go: simulation elapsed: %s\n", time.Since(start))
+	fmt.Fprintf(os.Stderr, "aos_go: simulation elapsed: %fs\n", time.Since(start).Seconds())
 
 	return nil
 }
