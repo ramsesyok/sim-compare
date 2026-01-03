@@ -195,3 +195,69 @@ t2                85.21         86.10         85.96
 t4                89.38         88.66         86.11
 t8               107.29         96.99         88.77
 ```
+
+# bevy_rs_p chunk/grid summary (small/middle/large)
+
+## Fastest combinations
+
+### By simulation elapsed
+- small: t2 c512 (2.21229s)
+- middle: t8 c512 (13.82029s)
+- large: t2 c256 (80.33085s)
+
+### By wall time
+- small: t2 c512 (2.22s)
+- middle: t8 c256 (12.58s)
+- large: t2 c256 (77.82s)
+
+## Tables (simulation elapsed, s)
+
+### small
+```
+threads \ chunk    c128        c256        c512
+t2              2.49882       2.53316       2.21229
+t4              2.61781       3.43406       3.73164
+t8              3.30741       3.45010       2.92104
+```
+
+### middle
+```
+threads \ chunk    c128        c256        c512
+t2             23.67551      14.87578      14.48185
+t4             23.39566      14.12666      14.22311
+t8             25.88860      14.18367      13.82029
+```
+
+### large
+```
+threads \ chunk    c128        c256        c512
+t2             85.27728      80.33085      87.45210
+t4             83.23209      83.54123      82.68768
+t8            101.36767      93.49407      83.93206
+```
+
+## Tables (wall time, s)
+
+### small
+```
+threads \ chunk    c128        c256        c512
+t2                 2.51          2.54          2.22
+t4                 2.63          3.44          3.74
+t8                 3.31          3.46          2.93
+```
+
+### middle
+```
+threads \ chunk    c128        c256        c512
+t2                22.22         14.93         12.94
+t4                21.86         14.18         14.28
+t8                24.31         12.58         13.87
+```
+
+### large
+```
+threads \ chunk    c128        c256        c512
+t2                80.95         77.82         83.00
+t4                78.71         80.74         78.22
+t8                96.93         89.02         79.45
+```

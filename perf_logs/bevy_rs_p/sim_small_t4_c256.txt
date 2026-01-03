@@ -1,0 +1,1 @@
+bevy_rs_p: simulation elapsed: 3.434056585s
