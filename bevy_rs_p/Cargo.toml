@@ -1,0 +1,13 @@
+[package]
+name = "bevy_rs_p"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy_ecs = "0.13"
+clap = { version = "4.5.9", features = ["derive"] }
+pprof = { version = "0.13", features = ["prost-codec"] }
+prost = "0.12"
+rayon = "1.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
