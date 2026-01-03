@@ -1,0 +1,1 @@
+soa_rs: simulation elapsed: 12.241324912s

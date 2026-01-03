@@ -137,7 +137,7 @@ t8                90.38         86.68         80.82
 ### By simulation elapsed
 - small: t2 c256 (2.58074s)
 - middle: t8 c256 (15.47505s)
-- large: t2 c512 (88.70329s)
+- large: t2 c128 (89.51954s)
 
 ### By wall time
 - small: t2 c256 (2.59s)
@@ -165,7 +165,7 @@ t8             27.73325      15.47505      15.56769
 ### large
 ```
 threads \ chunk    c128        c256        c512
-t2             89.51954      90.25044      88.70329
+t2             89.51954      90.25044      93.44614
 t4             93.82506      93.00607      90.54073
 t8            111.63240     102.97902      93.11873
 ```
@@ -191,7 +191,7 @@ t8                26.22         13.91         15.62
 ### large
 ```
 threads \ chunk    c128        c256        c512
-t2                85.21         86.10         85.96
+t2                85.21         86.10         88.96
 t4                89.38         88.66         86.11
 t8               107.29         96.99         88.77
 ```
@@ -201,12 +201,12 @@ t8               107.29         96.99         88.77
 ## Fastest combinations
 
 ### By simulation elapsed
-- small: t2 c512 (2.21229s)
+- small: t2 c512 (2.22797s)
 - middle: t8 c512 (13.82029s)
 - large: t2 c256 (80.33085s)
 
 ### By wall time
-- small: t2 c512 (2.22s)
+- small: t2 c512 (2.24s)
 - middle: t8 c256 (12.58s)
 - large: t2 c256 (77.82s)
 
@@ -215,7 +215,7 @@ t8               107.29         96.99         88.77
 ### small
 ```
 threads \ chunk    c128        c256        c512
-t2              2.49882       2.53316       2.21229
+t2              2.49882       2.53316       2.22797
 t4              2.61781       3.43406       3.73164
 t8              3.30741       3.45010       2.92104
 ```
@@ -241,7 +241,7 @@ t8            101.36767      93.49407      83.93206
 ### small
 ```
 threads \ chunk    c128        c256        c512
-t2                 2.51          2.54          2.22
+t2                 2.51          2.54          2.24
 t4                 2.63          3.44          3.74
 t8                 3.31          3.46          2.93
 ```
@@ -260,4 +260,24 @@ threads \ chunk    c128        c256        c512
 t2                80.95         77.82         83.00
 t4                78.71         80.74         78.22
 t8                96.93         89.02         79.45
+```
+
+# Serial vs Parallel (simulation elapsed)
+
+Parallelは `*_rs_p` の最速値、Serialは今回の再計測値です。
+
+```
+name     scenario  serial_s   parallel_s  speedup
+aos_rs   small     1.69486    1.54784     1.09x
+aos_rs   middle   14.39496   11.28604     1.28x
+aos_rs   large    87.25180   76.67559     1.14x
+soa_rs   small     1.68474    1.65257     1.02x
+soa_rs   middle   12.24132   12.00170     1.02x
+soa_rs   large    89.57471   75.47888     1.19x
+hecs_rs  small     2.57982    2.58074     1.00x
+hecs_rs  middle   17.76710   15.47505     1.15x
+hecs_rs  large    87.45751   89.51954     0.98x
+bevy_rs  small     2.04351    2.22797     0.92x
+bevy_rs  middle   15.74514   13.82029     1.14x
+bevy_rs  large    90.63874   80.33085     1.13x
 ```
