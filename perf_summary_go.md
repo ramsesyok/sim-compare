@@ -1,9 +1,16 @@
 # aos_go_p chunk/grid summary (small/middle/large)
 
-## Fastest combinations (simulation elapsed)
+## Fastest combinations
+
+### By simulation elapsed
 - small: t8 c512 (4.704943s)
 - middle: t2 c256 (17.190698s)
 - large: t4 c512 (97.151816s)
+
+### By wall time
+- small: N/A (wall time not measured)
+- middle: N/A (wall time not measured)
+- large: N/A (wall time not measured)
 
 ## Tables (simulation elapsed, s)
 
@@ -31,111 +38,36 @@ t4              97.301292  103.302937   97.151816
 t8              99.068787  108.548409   99.052316
 ```
 
-# soa_go chunk/grid summary (small/middle/large)
-
-## Fastest combinations (simulation elapsed)
-- small: t2 c512 (3.727755s)
-- middle: t4 c128 (15.592521s)
-- large: t8 c512 (86.997164s)
-
-## Tables (simulation elapsed, s)
+## Tables (wall time, s)
 
 ### small
 ```
-threads \ chunk    c128        c256        c512
-t2               3.799456    3.802229    3.727755
-t4               3.754573    3.741675    3.763199
-t8               3.798941    3.781614    3.794669
+N/A (wall time not measured)
 ```
 
 ### middle
 ```
-threads \ chunk    c128        c256        c512
-t2              17.254772   17.048625   16.451145
-t4              15.592521   15.792409   15.726858
-t8              15.881334   15.608241   15.843131
+N/A (wall time not measured)
 ```
 
 ### large
 ```
-threads \ chunk    c128        c256        c512
-t2              89.838451   90.111049   93.607213
-t4              91.419864   93.737705   94.651445
-t8              92.782936   88.895059   86.997164
-```
-
-# donburi_go chunk/grid summary (small/middle/large)
-
-## Fastest combinations (simulation elapsed)
-- small: t2 c512 (4.363026s)
-- middle: t4 c256 (19.192974s)
-- large: t8 c256 (102.839537s)
-
-## Tables (simulation elapsed, s)
-
-### small
-```
-threads \ chunk    c128        c256        c512
-t2               4.572332    4.388580    4.363026
-t4               4.401286    4.415828    4.469275
-t8               4.573273    4.503647    4.442114
-```
-
-### middle
-```
-threads \ chunk    c128        c256        c512
-t2              19.233988   20.223213   19.610042
-t4              19.612253   19.192974   19.755624
-t8              19.234902   19.306066   19.210723
-```
-
-### large
-```
-threads \ chunk    c128        c256        c512
-t2             103.827746  104.821962  103.946872
-t4             106.555006  107.207234  106.634238
-t8             105.591100  102.839537  103.168810
-```
-
-# ark_go chunk/grid summary (small/middle/large)
-
-## Fastest combinations (simulation elapsed)
-- small: t8 c256 (3.755306s)
-- middle: t4 c512 (15.983206s)
-- large: t8 c512 (88.142054s)
-
-## Tables (simulation elapsed, s)
-
-### small
-```
-threads \ chunk    c128        c256        c512
-t2               4.114457    3.936989    3.943124
-t4               3.780266    3.759906    4.020619
-t8               3.824241    3.755306    3.788027
-```
-
-### middle
-```
-threads \ chunk    c128        c256        c512
-t2              16.190034   16.101260   16.135491
-t4              16.044156   16.243447   15.983206
-t8              16.127448   16.068842   16.595680
-```
-
-### large
-```
-threads \ chunk    c128        c256        c512
-t2              88.506099   89.505491   88.397919
-t4              88.351286   88.873070   89.069206
-t8              88.258355   88.346561   88.142054
+N/A (wall time not measured)
 ```
 
 # soa_go_p chunk/grid summary (small/middle/large)
 
-## Fastest combinations (simulation elapsed)
+## Fastest combinations
+
+### By simulation elapsed
 - small: t8 c512 (4.636836s)
 - middle: t2 c128 (16.775818s)
 - large: t2 c512 (89.452314s)
+
+### By wall time
+- small: N/A (wall time not measured)
+- middle: N/A (wall time not measured)
+- large: N/A (wall time not measured)
 
 ## Tables (simulation elapsed, s)
 
@@ -163,12 +95,36 @@ t4              95.109879   95.158639   91.309132
 t8              94.796889   94.534274   91.114205
 ```
 
+## Tables (wall time, s)
+
+### small
+```
+N/A (wall time not measured)
+```
+
+### middle
+```
+N/A (wall time not measured)
+```
+
+### large
+```
+N/A (wall time not measured)
+```
+
 # ark_go_p chunk/grid summary (small/middle/large)
 
-## Fastest combinations (simulation elapsed)
+## Fastest combinations
+
+### By simulation elapsed
 - small: t2 c128 (5.277533s)
 - middle: t8 c128 (16.948616s)
 - large: t2 c128 (90.340079s)
+
+### By wall time
+- small: N/A (wall time not measured)
+- middle: N/A (wall time not measured)
+- large: N/A (wall time not measured)
 
 ## Tables (simulation elapsed, s)
 
@@ -196,12 +152,36 @@ t4              97.717125   95.978179   94.929832
 t8              98.421881   99.907542   98.798515
 ```
 
+## Tables (wall time, s)
+
+### small
+```
+N/A (wall time not measured)
+```
+
+### middle
+```
+N/A (wall time not measured)
+```
+
+### large
+```
+N/A (wall time not measured)
+```
+
 # donburi_go_p chunk/grid summary (small/middle/large)
 
-## Fastest combinations (simulation elapsed)
+## Fastest combinations
+
+### By simulation elapsed
 - small: t4 c256 (5.123185s)
 - middle: t2 c128 (18.673906s)
 - large: t2 c128 (96.780278s)
+
+### By wall time
+- small: N/A (wall time not measured)
+- middle: N/A (wall time not measured)
+- large: N/A (wall time not measured)
 
 ## Tables (simulation elapsed, s)
 
@@ -227,4 +207,41 @@ threads \ chunk    c128        c256        c512
 t2              96.780278   98.683023  100.879250
 t4              98.635174   98.832140  100.962501
 t8              98.879376   99.882168  100.865095
+```
+
+## Tables (wall time, s)
+
+### small
+```
+N/A (wall time not measured)
+```
+
+### middle
+```
+N/A (wall time not measured)
+```
+
+### large
+```
+N/A (wall time not measured)
+```
+
+# Serial vs Parallel (simulation elapsed)
+
+Parallelは `*_go_p` の最速値、Serialは `*_go` の最速値（aos_goのみ今回の再計測）です。
+
+```
+name        scenario  serial_s   parallel_s  speedup
+aos_go      small     3.522976    4.704943     0.75x
+aos_go      middle   15.255151   17.190698     0.89x
+aos_go      large    81.912350   97.151816     0.84x
+soa_go      small     3.727755    4.636836     0.80x
+soa_go      middle   15.592521   16.775818     0.93x
+soa_go      large    86.997164   89.452314     0.97x
+donburi_go  small     4.363026    5.123185     0.85x
+donburi_go  middle   19.192974   18.673906     1.03x
+donburi_go  large   102.839537   96.780278     1.06x
+ark_go      small     3.755306    5.277533     0.71x
+ark_go      middle   15.983206   16.948616     0.94x
+ark_go      large    88.142054   90.340079     0.98x
 ```
