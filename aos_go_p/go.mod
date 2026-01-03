@@ -1,4 +1,4 @@
-module aos_go
+module aos_go_p
 
 go 1.22
 

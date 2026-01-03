@@ -1,4 +1,4 @@
-module soa_go
+module soa_go_p
 
 go 1.22
 

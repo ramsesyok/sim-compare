@@ -1,4 +1,4 @@
-module donburi_go
+module donburi_go_p
 
 go 1.23
 
