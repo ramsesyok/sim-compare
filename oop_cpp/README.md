@@ -9,31 +9,32 @@ OOP(オブジェクト指向)でシミュレーションを実装したC++版の
 - 1ステップずつの進行とログ生成を中心に、後から最適化や別アーキテクチャ比較がしやすい構成にする
 
 ## コード構成
-- `main.cpp`
+cppソースは`src/`配下にまとめています。
+- `src/main.cpp`
   - CLI引数を受け取り、`Simulation`に処理を委譲する入口です。
-- `simulation.cpp` / `include/simulation.hpp`
+- `src/simulation.cpp` / `include/simulation.hpp`
   - シミュレーションの中核です。シナリオ読み込み、オブジェクト構築、時間進行、ログ生成を担当します。
-- `sim_object.cpp` / `include/sim_object.hpp`
+- `src/sim_object.cpp` / `include/sim_object.hpp`
   - 全オブジェクト共通の基底クラスです。位置・速度・所属などの共通データと基本動作を定義します。
-- `fixed_object.cpp` / `include/fixed_object.hpp`
+- `src/fixed_object.cpp` / `include/fixed_object.hpp`
   - 固定オブジェクトの基底クラスです。司令役の派生元になります。
-- `movable_object.cpp` / `include/movable_object.hpp`
+- `src/movable_object.cpp` / `include/movable_object.hpp`
   - 移動オブジェクトの基底クラスです。偵察・伝令・攻撃の派生元になります。
-- `commander_object.cpp` / `include/commander_object.hpp`
+- `src/commander_object.cpp` / `include/commander_object.hpp`
   - 司令役の振る舞いを定義します。
-- `scout_object.cpp` / `include/scout_object.hpp`
+- `src/scout_object.cpp` / `include/scout_object.hpp`
   - 偵察役の検知処理とイベント生成を担当します。
-- `messenger_object.cpp` / `include/messenger_object.hpp`
+- `src/messenger_object.cpp` / `include/messenger_object.hpp`
   - 伝令役の通信処理を担当します。
-- `attacker_object.cpp` / `include/attacker_object.hpp`
+- `src/attacker_object.cpp` / `include/attacker_object.hpp`
   - 攻撃役の爆破処理とイベント生成を担当します。
-- `logging.cpp` / `include/logging.hpp`
+- `src/logging.cpp` / `include/logging.hpp`
   - タイムラインログとイベントログをJSONとして書き出します。
-- `route.cpp` / `include/route.hpp`
+- `src/route.cpp` / `include/route.hpp`
   - ルート上の移動計算を補助します。
-- `geo.cpp` / `include/geo.hpp`
+- `src/geo.cpp` / `include/geo.hpp`
   - 座標や距離計算をまとめたユーティリティです。
-- `spatial_hash.cpp` / `include/spatial_hash.hpp`
+- `src/spatial_hash.cpp` / `include/spatial_hash.hpp`
   - 近傍検索を効率化する空間ハッシュです。
 - `include/jsonobj/`
   - シナリオやログのJSONオブジェクト定義です。`jsonobj`名前空間にまとめています。
