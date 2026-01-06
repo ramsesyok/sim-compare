@@ -25,7 +25,7 @@ AttackerObject::AttackerObject(std::string id,
                     total_duration_sec),
       m_bom_range_m(bom_range_m) {}
 
-void AttackerObject::emitDetonation(int time_sec) {
+void AttackerObject::emitDetonation(int time_sec, EventLogger &event_logger) {
     // 爆破イベントは攻撃役の責務として扱い、他クラスには波及させません。
     if (m_has_detonated) {
         return;
@@ -51,6 +51,6 @@ void AttackerObject::emitDetonation(int time_sec) {
     event.setBomRangeM(m_bom_range_m);
     nlohmann::json json_event;
     simoop::to_json(json_event, event);
-    EventLogger::instance().write(json_event);
+    event_logger.write(json_event);
     m_has_detonated = true;
 }

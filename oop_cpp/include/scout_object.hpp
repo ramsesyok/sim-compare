@@ -7,6 +7,8 @@
 #include "movable_object.hpp"
 #include "spatial_hash.hpp"
 
+class EventLogger;
+
 /**
  * @brief 探知した相手の情報を保持し、失探判定に利用するための構造体です。
  *
@@ -46,7 +48,8 @@ public:
     void updateDetection(int time_sec,
                          const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash,
                          const std::vector<SimObject *> &objects,
-                         int self_index);
+                         int self_index,
+                         EventLogger &event_logger);
 
 private:
     int m_detect_range_m = 0;

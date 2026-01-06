@@ -48,6 +48,7 @@ private:
     std::vector<std::unique_ptr<SimObject>> m_objects{};
     std::vector<SimObject *> m_object_ptrs{};
     TimelineLogger m_timeline_logger{};
+    EventLogger m_event_logger{};
     int m_end_sec = 24 * 60 * 60;
     double m_detect_range = 0.0;
 };

@@ -21,10 +21,11 @@ TEST_CASE("AttackerObjectは到達後に一度だけ爆破ログを出力する�
     obj.updatePosition(1);
 
     auto path = std::filesystem::temp_directory_path() / "sim_compare_attacker_event.log";
-    EventLogger::instance().open(path.string());
+    EventLogger logger;
+    logger.open(path.string());
 
-    obj.emitDetonation(1);
-    obj.emitDetonation(2);
+    obj.emitDetonation(1, logger);
+    obj.emitDetonation(2, logger);
 
     std::ifstream in(path);
     std::string line1;
@@ -32,7 +33,7 @@ TEST_CASE("AttackerObjectは到達後に一度だけ爆破ログを出力する�
     std::getline(in, line1);
     std::getline(in, line2);
 
-    EventLogger::instance().close();
+    logger.close();
 
     REQUIRE_FALSE(line1.empty());
     REQUIRE(line2.empty());

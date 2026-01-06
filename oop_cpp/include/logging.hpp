@@ -35,15 +35,10 @@ private:
 };
 
 /**
- * @brief イベントログはシミュレーション全体で共有するため、単一インスタンスで管理します。
+ * @brief イベントログ出力を非同期ロガーとしてまとめるクラスです。
  */
 class EventLogger {
 public:
-    /**
-     * @brief シングルトンの唯一インスタンスを取得します。
-     */
-    static EventLogger &instance();
-
     /**
      * @brief 出力先ファイルを開いてイベントログ出力を開始します。
      */
@@ -58,9 +53,8 @@ public:
     void close();
 
 private:
-    EventLogger() = default;
-    EventLogger(const EventLogger &) = delete;
-    EventLogger &operator=(const EventLogger &) = delete;
-
-    std::ofstream m_out{};
+    /**
+     * @brief spdlogの非同期ロガーを保持し、イベント出力をまとめます。
+     */
+    std::shared_ptr<spdlog::logger> m_logger{};
 };

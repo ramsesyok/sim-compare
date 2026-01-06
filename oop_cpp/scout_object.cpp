@@ -31,7 +31,8 @@ void ScoutObject::updateDetection(
     int time_sec,
     const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash,
     const std::vector<SimObject *> &objects,
-    int self_index) {
+    int self_index,
+    EventLogger &event_logger) {
     // 探知は斥候の責務としてまとめ、他の役割が関与しないようにします。
     if (m_detect_range_m <= 0) {
         return;
@@ -92,7 +93,7 @@ void ScoutObject::updateDetection(
         event.setDetectId(entry.first);
         nlohmann::json json_event;
         simoop::to_json(json_event, event);
-        EventLogger::instance().write(json_event);
+        event_logger.write(json_event);
     }
 
     for (const auto &entry : m_detect_state) {
@@ -112,7 +113,7 @@ void ScoutObject::updateDetection(
         event.setDetectId(entry.first);
         nlohmann::json json_event;
         simoop::to_json(json_event, event);
-        EventLogger::instance().write(json_event);
+        event_logger.write(json_event);
     }
 
     m_detect_state = std::move(current_detected);

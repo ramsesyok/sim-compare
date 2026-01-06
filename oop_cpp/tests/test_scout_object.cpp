@@ -25,14 +25,15 @@ TEST_CASE("ScoutObjectは敵が範囲内に入ると探知イベントを出力�
     auto spatial_hash = buildSpatialHash(objects, 100.0);
 
     auto path = std::filesystem::temp_directory_path() / "sim_compare_scout_event.log";
-    EventLogger::instance().open(path.string());
+    EventLogger logger;
+    logger.open(path.string());
 
-    scout.updateDetection(0, spatial_hash, objects, 0);
+    scout.updateDetection(0, spatial_hash, objects, 0, logger);
 
     std::ifstream in(path);
     std::string log;
     std::getline(in, log);
 
-    EventLogger::instance().close();
+    logger.close();
     REQUIRE(log.find("\"detection_action\":\"found\"") != std::string::npos);
 }

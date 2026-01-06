@@ -2,6 +2,8 @@
 
 #include "movable_object.hpp"
 
+class EventLogger;
+
 /**
  * @brief 攻撃役の移動と爆破ログの出力を扱うクラスです。
  *
@@ -24,7 +26,7 @@ public:
     /**
      * @brief 到達後に一度だけ爆破イベントを出力します。
      */
-    void emitDetonation(int time_sec);
+    void emitDetonation(int time_sec, EventLogger &event_logger);
 
 private:
     int m_bom_range_m = 0;

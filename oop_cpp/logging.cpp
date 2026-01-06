@@ -1,8 +1,8 @@
 #include "logging.hpp"
 
-#include <iomanip>
 #include <stdexcept>
 
+#include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/spdlog.h"
 
@@ -52,36 +52,40 @@ void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects
     m_logger->info("{}", json_timeline.dump());
 }
 
-EventLogger &EventLogger::instance() {
-    // シングルトンとして唯一のインスタンスを返し、全体でログ出力を共有します。
-    static EventLogger logger;
-    return logger;
-}
-
 void EventLogger::open(const std::string &path) {
-    // イベントログの出力先を開き、出力フォーマットの設定もここで行います。
-    if (m_out) {
-        // 既に開いている場合は閉じてから再設定し、状態を明確にします。
-        m_out.close();
+    // イベントログの出力先を開き、非同期ロガーの初期化もここで行います。
+    if (!spdlog::thread_pool()) {
+        spdlog::init_thread_pool(8192, 1);
     }
-    m_out.open(path);
-    if (!m_out) {
+
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path, true);
+    m_logger = std::make_shared<spdlog::async_logger>(
+        "event_logger",
+        sink,
+        spdlog::thread_pool(),
+        spdlog::async_overflow_policy::block);
+
+    m_logger->set_level(spdlog::level::info);
+    m_logger->set_pattern("%v");
+    m_logger->flush_on(spdlog::level::info);
+
+    if (!m_logger) {
         throw std::runtime_error("event: failed to open " + path);
     }
-    m_out << std::setprecision(10);
 }
 
 void EventLogger::write(const nlohmann::json &event) {
-    // 出力ストリームが準備されている前提で1行ずつndjsonを書き出します。
-    if (!m_out) {
+    // 出力ロガーが準備されている前提で1行ずつndjsonを書き出します。
+    if (!m_logger) {
         throw std::runtime_error("event: logger is not initialized");
     }
-    m_out << event.dump() << '\n';
+    m_logger->info("{}", event.dump());
 }
 
 void EventLogger::close() {
     // テストや終了処理で明示的に閉じられるように用意します。
-    if (m_out) {
-        m_out.close();
+    if (m_logger) {
+        m_logger->flush();
+        m_logger.reset();
     }
 }

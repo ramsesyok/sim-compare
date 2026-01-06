@@ -122,7 +122,7 @@ void Simulation::initialize(const std::string &scenario_path,
     }
 
     m_timeline_logger.open(timeline_path);
-    EventLogger::instance().open(event_path);
+    m_event_logger.open(event_path);
 
     m_end_sec = 24 * 60 * 60;
     m_detect_range = static_cast<double>(m_scenario.getPerformance().getScout().getDetectRangeM());
@@ -146,14 +146,14 @@ void Simulation::run() {
         for (size_t i = 0; i < m_objects.size(); ++i) {
             auto *scout = dynamic_cast<ScoutObject *>(m_objects[i].get());
             if (scout) {
-                scout->updateDetection(time_sec, spatial_hash, m_object_ptrs, static_cast<int>(i));
+                scout->updateDetection(time_sec, spatial_hash, m_object_ptrs, static_cast<int>(i), m_event_logger);
             }
         }
 
         for (auto &obj : m_objects) {
             auto *attacker = dynamic_cast<AttackerObject *>(obj.get());
             if (attacker) {
-                attacker->emitDetonation(time_sec);
+                attacker->emitDetonation(time_sec, m_event_logger);
             }
         }
 
