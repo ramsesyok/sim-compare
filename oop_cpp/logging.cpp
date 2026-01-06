@@ -1,4 +1,4 @@
-#include "loggin.hpp"
+#include "logging.hpp"
 
 #include "geo.hpp"
 #include "sim_object.hpp"

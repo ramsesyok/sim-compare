@@ -9,7 +9,7 @@
 
 #include "attacker_object.hpp"
 #include "commander_object.hpp"
-#include "loggin.hpp"
+#include "logging.hpp"
 #include "messenger_object.hpp"
 #include "route.hpp"
 #include "scout_object.hpp"
