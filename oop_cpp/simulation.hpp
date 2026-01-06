@@ -6,27 +6,33 @@
 #include <vector>
 
 #include "scenario.hpp"
+#include "sim_object.hpp"
 
-class SimObject;
-
+// シミュレーション全体の流れを管理するクラスで、
+// 初期化と実行を明確に分けることで責務を整理します。
 class Simulation {
 public:
+    // 役割を文字列に変換する処理は、ログ生成時の共通操作としてまとめています。
     std::string roleToString(simoop::Role role) const;
+    // 初期化ではシナリオ読込と入出力の準備を行い、状態をクラスの内部に保持します。
     void initialize(const std::string &scenario_path,
                     const std::string &timeline_path,
                     const std::string &event_path);
+    // runはループのみを担当し、initializeで準備された状態を使って実行します。
     void run();
 
 private:
+    // 具体的なオブジェクト生成は内部実装として隠蔽し、呼び出し側を単純にします。
     std::vector<std::unique_ptr<SimObject>> buildObjects(const simoop::Scenario &scenario) const;
     simoop::Scenario loadScenario(const std::string &path) const;
 
-    bool initialized_ = false;
-    simoop::Scenario scenario_{};
-    std::vector<std::unique_ptr<SimObject>> objects_{};
-    std::vector<SimObject *> object_ptrs_{};
-    std::ofstream timeline_out_{};
-    std::ofstream event_out_{};
-    int end_sec_ = 24 * 60 * 60;
-    double detect_range_ = 0.0;
+    // 実行に必要な状態をメンバ変数として保持し、関数間で共有します。
+    bool m_initialized = false;
+    simoop::Scenario m_scenario{};
+    std::vector<std::unique_ptr<SimObject>> m_objects{};
+    std::vector<SimObject *> m_object_ptrs{};
+    std::ofstream m_timeline_out{};
+    std::ofstream m_event_out{};
+    int m_end_sec = 24 * 60 * 60;
+    double m_detect_range = 0.0;
 };

@@ -17,6 +17,7 @@
 #include "spatial_hash.hpp"
 
 std::string Simulation::roleToString(simoop::Role role) const {
+    // 役割の文字列化を一箇所にまとめ、ログ出力時の表現を統一します。
     switch (role) {
     case simoop::Role::COMMANDER:
         return "commander";
@@ -31,10 +32,12 @@ std::string Simulation::roleToString(simoop::Role role) const {
 }
 
 std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::Scenario &scenario) const {
+    // シナリオ定義を元に、役割に応じた派生クラスを生成します。
     std::vector<std::unique_ptr<SimObject>> objects;
 
     for (const auto &team : scenario.getTeams()) {
         for (const auto &obj : team.getObjects()) {
+            // オブジェクト生成の前に経路と移動時間を計算しておき、更新処理で再利用します。
             std::vector<RoutePoint> route = buildRoute(obj.getRoute());
             auto segment_info = buildSegmentTimes(route);
             std::vector<double> segment_ends = std::move(segment_info.first);
@@ -93,6 +96,7 @@ std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::S
 }
 
 simoop::Scenario Simulation::loadScenario(const std::string &path) const {
+    // シナリオ読み込みはSimulation内部で完結させ、外部に解析手順を露出しません。
     std::ifstream file(path);
     if (!file) {
         throw std::runtime_error("scenario: failed to open " + path);
@@ -109,59 +113,61 @@ void Simulation::initialize(const std::string &scenario_path,
                             const std::string &event_path) {
     // ここではAoS/SoA/ECSではなく、各オブジェクトをクラスとして扱うオブジェクト指向設計で、
     // 毎秒の更新やイベント判定をそれぞれの責務として分けて実装する流れを示しています。
-    scenario_ = loadScenario(scenario_path);
-    objects_ = buildObjects(scenario_);
+    // initializeは準備だけを行い、runでは繰り返し処理のみを担当します。
+    m_scenario = loadScenario(scenario_path);
+    m_objects = buildObjects(m_scenario);
 
-    object_ptrs_.clear();
-    object_ptrs_.reserve(objects_.size());
-    for (const auto &obj : objects_) {
-        object_ptrs_.push_back(obj.get());
+    m_object_ptrs.clear();
+    m_object_ptrs.reserve(m_objects.size());
+    for (const auto &obj : m_objects) {
+        m_object_ptrs.push_back(obj.get());
     }
 
-    timeline_out_.open(timeline_path);
-    if (!timeline_out_) {
+    m_timeline_out.open(timeline_path);
+    if (!m_timeline_out) {
         throw std::runtime_error("timeline: failed to open " + timeline_path);
     }
-    event_out_.open(event_path);
-    if (!event_out_) {
+    m_event_out.open(event_path);
+    if (!m_event_out) {
         throw std::runtime_error("event: failed to open " + event_path);
     }
 
-    timeline_out_ << std::setprecision(10);
-    event_out_ << std::setprecision(10);
+    m_timeline_out << std::setprecision(10);
+    m_event_out << std::setprecision(10);
 
-    end_sec_ = 24 * 60 * 60;
-    detect_range_ = static_cast<double>(scenario_.getPerformance().getScout().getDetectRangeM());
-    initialized_ = true;
+    m_end_sec = 24 * 60 * 60;
+    m_detect_range = static_cast<double>(m_scenario.getPerformance().getScout().getDetectRangeM());
+    m_initialized = true;
 }
 
 void Simulation::run() {
-    if (!initialized_) {
+    if (!m_initialized) {
         throw std::runtime_error("simulation: initialize must be called before run");
     }
 
-    for (int time_sec = 0; time_sec <= end_sec_; ++time_sec) {
-        for (auto &obj : objects_) {
+    // 1秒刻みで、位置更新→探知→爆破→ログ出力の順に処理します。
+    for (int time_sec = 0; time_sec <= m_end_sec; ++time_sec) {
+        for (auto &obj : m_objects) {
             obj->updatePosition(time_sec);
         }
 
         std::unordered_map<CellKey, std::vector<int>, CellKeyHash> spatial_hash =
-            buildSpatialHash(object_ptrs_, detect_range_);
+            buildSpatialHash(m_object_ptrs, m_detect_range);
 
-        for (size_t i = 0; i < objects_.size(); ++i) {
-            auto *scout = dynamic_cast<ScoutObject *>(objects_[i].get());
+        for (size_t i = 0; i < m_objects.size(); ++i) {
+            auto *scout = dynamic_cast<ScoutObject *>(m_objects[i].get());
             if (scout) {
-                scout->updateDetection(time_sec, spatial_hash, object_ptrs_, static_cast<int>(i), event_out_);
+                scout->updateDetection(time_sec, spatial_hash, m_object_ptrs, static_cast<int>(i), m_event_out);
             }
         }
 
-        for (auto &obj : objects_) {
+        for (auto &obj : m_objects) {
             auto *attacker = dynamic_cast<AttackerObject *>(obj.get());
             if (attacker) {
-                attacker->emitDetonation(time_sec, event_out_);
+                attacker->emitDetonation(time_sec, m_event_out);
             }
         }
 
-        writeTimelineLog(time_sec, object_ptrs_, *this, timeline_out_);
+        writeTimelineLog(time_sec, m_object_ptrs, *this, m_timeline_out);
     }
 }

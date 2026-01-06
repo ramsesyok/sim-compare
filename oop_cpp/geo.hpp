@@ -3,6 +3,7 @@
 #include <cstddef>
 
 // ECEF座標を扱うための構造体で、位置計算の共通データとして使います。
+// 役割ごとに計算が変わらないため、共通の小さな構造体として集約します。
 struct Ecef {
     double x = 0.0;
     double y = 0.0;

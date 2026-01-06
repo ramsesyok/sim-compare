@@ -3,6 +3,7 @@
 #include "movable_object.hpp"
 
 // 伝令役の移動を扱うクラスで、通信動作は今後の拡張に備えて保持します。
+// 移動ロジックは親クラスに任せ、役割固有の属性だけをこのクラスで持ちます。
 class MessengerObject : public MovableObject {
 public:
     MessengerObject(std::string id,
@@ -15,5 +16,5 @@ public:
                     int comm_range_m);
 
 private:
-    int comm_range_m_ = 0;
+    int m_comm_range_m = 0;
 };

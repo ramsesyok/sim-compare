@@ -33,6 +33,7 @@ static CliArgs parseArgs(int argc, char **argv) {
 int main(int argc, char **argv) {
     try {
         CliArgs args = parseArgs(argc, argv);
+        // mainは入出力の橋渡しだけを担当し、シミュレーション本体の責務はSimulationに委譲します。
         Simulation simulation;
         simulation.initialize(args.scenario_path, args.timeline_path, args.event_path);
         simulation.run();

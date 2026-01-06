@@ -22,33 +22,34 @@ AttackerObject::AttackerObject(std::string id,
                     std::move(network),
                     std::move(segment_end_secs),
                     total_duration_sec),
-      bom_range_m_(bom_range_m) {}
+      m_bom_range_m(bom_range_m) {}
 
 void AttackerObject::emitDetonation(int time_sec, std::ostream &event_out) {
-    if (has_detonated_) {
+    // 爆破イベントは攻撃役の責務として扱い、他クラスには波及させません。
+    if (m_has_detonated) {
         return;
     }
-    if (!std::isfinite(total_duration_sec_)) {
+    if (!std::isfinite(m_total_duration_sec)) {
         return;
     }
-    if (static_cast<double>(time_sec) < static_cast<double>(start_sec_) + total_duration_sec_) {
+    if (static_cast<double>(time_sec) < static_cast<double>(m_start_sec) + m_total_duration_sec) {
         return;
     }
 
     double lat = 0.0;
     double lon = 0.0;
     double alt = 0.0;
-    ecefToGeodetic(position_, lat, lon, alt);
+    ecefToGeodetic(m_position, lat, lon, alt);
     simoop::DetonationEvent event;
     event.setEventType("detonation");
     event.setTimeSec(time_sec);
-    event.setAttackerId(id_);
+    event.setAttackerId(m_id);
     event.setLatDeg(lat);
     event.setLonDeg(lon);
     event.setAltM(alt);
-    event.setBomRangeM(bom_range_m_);
+    event.setBomRangeM(m_bom_range_m);
     nlohmann::json json_event;
     simoop::to_json(json_event, event);
     event_out << json_event.dump() << '\n';
-    has_detonated_ = true;
+    m_has_detonated = true;
 }

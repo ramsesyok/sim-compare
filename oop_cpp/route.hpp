@@ -7,6 +7,7 @@
 #include "scenario.hpp"
 
 // 経路点の計算結果をまとめるため、緯度経度とECEF座標の両方を保持します。
+// 移動の詳細はどの役割でも共通なので、専用構造体として分離しています。
 struct RoutePoint {
     double lat_deg = 0.0;
     double lon_deg = 0.0;

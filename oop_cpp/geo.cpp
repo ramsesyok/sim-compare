@@ -4,6 +4,7 @@
 
 double distanceEcef(const Ecef &a, const Ecef &b) {
     // ECEF空間でのユークリッド距離を計算するために、3軸の差分を合成します。
+    // 役割によらず共通の計算なので、クラスではなく関数に切り出しています。
     double dx = a.x - b.x;
     double dy = a.y - b.y;
     double dz = a.z - b.z;
@@ -12,6 +13,7 @@ double distanceEcef(const Ecef &a, const Ecef &b) {
 
 Ecef geodeticToEcef(double lat_deg, double lon_deg, double alt_m) {
     // WGS84の測地座標をECEF座標に変換するため、回転楕円体のパラメータを使って計算します。
+    // 変換ロジックは共通処理として独立させ、各クラスでの重複を避けます。
     constexpr double a = 6378137.0;
     constexpr double f = 1.0 / 298.257223563;
     constexpr double e2 = f * (2.0 - f);
@@ -35,6 +37,7 @@ Ecef geodeticToEcef(double lat_deg, double lon_deg, double alt_m) {
 
 void ecefToGeodetic(const Ecef &pos, double &lat_deg, double &lon_deg, double &alt_m) {
     // ECEFから緯度経度高度へ戻すため、反復近似で緯度と高度を求めます。
+    // 計算は純粋関数として扱い、状態は持たない設計にしています。
     constexpr double a = 6378137.0;
     constexpr double f = 1.0 / 298.257223563;
     constexpr double e2 = f * (2.0 - f);

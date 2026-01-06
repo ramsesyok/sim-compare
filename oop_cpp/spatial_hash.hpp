@@ -8,6 +8,7 @@
 class SimObject;
 
 // 空間ハッシュのキーとなる整数セル座標をまとめた構造体です。
+// 探知判定を高速化するために、空間をセルで分割する設計です。
 struct CellKey {
     int x = 0;
     int y = 0;
@@ -19,6 +20,7 @@ struct CellKey {
 };
 
 // CellKeyをunordered_mapのキーとして扱うためのハッシュ関数です。
+// ハッシュ化の責務を分けておくと、空間分割の変更が容易になります。
 struct CellKeyHash {
     size_t operator()(const CellKey &key) const;
 };

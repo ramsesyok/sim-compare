@@ -18,4 +18,4 @@ MessengerObject::MessengerObject(std::string id,
                     std::move(network),
                     std::move(segment_end_secs),
                     total_duration_sec),
-      comm_range_m_(comm_range_m) {}
+      m_comm_range_m(comm_range_m) {}

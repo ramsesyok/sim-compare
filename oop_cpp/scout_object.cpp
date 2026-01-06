@@ -23,8 +23,8 @@ ScoutObject::ScoutObject(std::string id,
                     std::move(network),
                     std::move(segment_end_secs),
                     total_duration_sec),
-      detect_range_m_(detect_range_m),
-      comm_range_m_(comm_range_m) {}
+      m_detect_range_m(detect_range_m),
+      m_comm_range_m(comm_range_m) {}
 
 void ScoutObject::updateDetection(
     int time_sec,
@@ -32,12 +32,13 @@ void ScoutObject::updateDetection(
     const std::vector<SimObject *> &objects,
     int self_index,
     std::ostream &event_out) {
-    if (detect_range_m_ <= 0) {
+    // 探知は斥候の責務としてまとめ、他の役割が関与しないようにします。
+    if (m_detect_range_m <= 0) {
         return;
     }
 
     std::unordered_map<std::string, DetectionInfo> current_detected;
-    CellKey base = cellKey(position_, static_cast<double>(detect_range_m_));
+    CellKey base = cellKey(m_position, static_cast<double>(m_detect_range_m));
 
     for (int dx = -1; dx <= 1; ++dx) {
         for (int dy = -1; dy <= 1; ++dy) {
@@ -52,11 +53,11 @@ void ScoutObject::updateDetection(
                         continue;
                     }
                     const SimObject *other = objects[index];
-                    if (other->teamId() == team_id_) {
+                    if (other->teamId() == m_team_id) {
                         continue;
                     }
-                    double distance = distanceEcef(position_, other->position());
-                    if (distance > static_cast<double>(detect_range_m_)) {
+                    double distance = distanceEcef(m_position, other->position());
+                    if (distance > static_cast<double>(m_detect_range_m)) {
                         continue;
                     }
                     double lat = 0.0;
@@ -75,7 +76,7 @@ void ScoutObject::updateDetection(
     }
 
     for (const auto &entry : current_detected) {
-        if (detect_state_.find(entry.first) != detect_state_.end()) {
+        if (m_detect_state.find(entry.first) != m_detect_state.end()) {
             continue;
         }
         const DetectionInfo &info = entry.second;
@@ -83,7 +84,7 @@ void ScoutObject::updateDetection(
         event.setEventType("detection");
         event.setDetectionAction(simoop::DetectionAction::FOUND);
         event.setTimeSec(time_sec);
-        event.setScountId(id_);
+        event.setScountId(m_id);
         event.setLatDeg(info.lat_deg);
         event.setLonDeg(info.lon_deg);
         event.setAltM(info.alt_m);
@@ -94,7 +95,7 @@ void ScoutObject::updateDetection(
         event_out << json_event.dump() << '\n';
     }
 
-    for (const auto &entry : detect_state_) {
+    for (const auto &entry : m_detect_state) {
         if (current_detected.find(entry.first) != current_detected.end()) {
             continue;
         }
@@ -103,7 +104,7 @@ void ScoutObject::updateDetection(
         event.setEventType("detection");
         event.setDetectionAction(simoop::DetectionAction::LOST);
         event.setTimeSec(time_sec);
-        event.setScountId(id_);
+        event.setScountId(m_id);
         event.setLatDeg(info.lat_deg);
         event.setLonDeg(info.lon_deg);
         event.setAltM(info.alt_m);
@@ -114,5 +115,5 @@ void ScoutObject::updateDetection(
         event_out << json_event.dump() << '\n';
     }
 
-    detect_state_ = std::move(current_detected);
+    m_detect_state = std::move(current_detected);
 }

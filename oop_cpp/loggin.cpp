@@ -10,6 +10,7 @@ void writeTimelineLog(int time_sec,
                       const Simulation &simulation,
                       std::ostream &out) {
     // タイムラインログは1秒ごとの全オブジェクト位置をまとめて出力します。
+    // ログ出力を独立した関数にすることで、シミュレーションの責務を分割します。
     simoop::Timeline timeline;
     timeline.setTimeSec(time_sec);
     std::vector<simoop::TimelinePosition> positions;

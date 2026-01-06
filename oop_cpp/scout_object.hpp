@@ -9,6 +9,7 @@
 #include "spatial_hash.hpp"
 
 // 探知した相手の情報を保持し、失探判定に利用するための構造体です。
+// 状態をクラスの内側に閉じ込めることで、外部から不用意に変更されないようにします。
 struct DetectionInfo {
     double lat_deg = 0.0;
     double lon_deg = 0.0;
@@ -17,6 +18,7 @@ struct DetectionInfo {
 };
 
 // 斥候役の移動と探知を担当するクラスです。
+// MovableObjectを継承し、探知の責務だけを追加することで、責務の分離を明確にします。
 class ScoutObject : public MovableObject {
 public:
     ScoutObject(std::string id,
@@ -36,7 +38,7 @@ public:
                          std::ostream &event_out);
 
 private:
-    int detect_range_m_ = 0;
-    int comm_range_m_ = 0;
-    std::unordered_map<std::string, DetectionInfo> detect_state_;
+    int m_detect_range_m = 0;
+    int m_comm_range_m = 0;
+    std::unordered_map<std::string, DetectionInfo> m_detect_state;
 };
