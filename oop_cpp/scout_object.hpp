@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,8 +33,7 @@ public:
     void updateDetection(int time_sec,
                          const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash,
                          const std::vector<SimObject *> &objects,
-                         int self_index,
-                         std::ostream &event_out);
+                         int self_index);
 
 private:
     int m_detect_range_m = 0;

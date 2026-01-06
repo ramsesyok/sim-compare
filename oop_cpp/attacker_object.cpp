@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "detonation_event.hpp"
+#include "logging.hpp"
 #include "geo.hpp"
 
 AttackerObject::AttackerObject(std::string id,
@@ -24,7 +25,7 @@ AttackerObject::AttackerObject(std::string id,
                     total_duration_sec),
       m_bom_range_m(bom_range_m) {}
 
-void AttackerObject::emitDetonation(int time_sec, std::ostream &event_out) {
+void AttackerObject::emitDetonation(int time_sec) {
     // 爆破イベントは攻撃役の責務として扱い、他クラスには波及させません。
     if (m_has_detonated) {
         return;
@@ -50,6 +51,6 @@ void AttackerObject::emitDetonation(int time_sec, std::ostream &event_out) {
     event.setBomRangeM(m_bom_range_m);
     nlohmann::json json_event;
     simoop::to_json(json_event, event);
-    event_out << json_event.dump() << '\n';
+    EventLogger::instance().write(json_event);
     m_has_detonated = true;
 }

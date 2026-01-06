@@ -1,7 +1,5 @@
 #include "simulation.hpp"
 
-#include <fstream>
-#include <iomanip>
 #include <optional>
 #include <stdexcept>
 #include <unordered_map>
@@ -123,17 +121,8 @@ void Simulation::initialize(const std::string &scenario_path,
         m_object_ptrs.push_back(obj.get());
     }
 
-    m_timeline_out.open(timeline_path);
-    if (!m_timeline_out) {
-        throw std::runtime_error("timeline: failed to open " + timeline_path);
-    }
-    m_event_out.open(event_path);
-    if (!m_event_out) {
-        throw std::runtime_error("event: failed to open " + event_path);
-    }
-
-    m_timeline_out << std::setprecision(10);
-    m_event_out << std::setprecision(10);
+    m_timeline_logger.open(timeline_path);
+    EventLogger::instance().open(event_path);
 
     m_end_sec = 24 * 60 * 60;
     m_detect_range = static_cast<double>(m_scenario.getPerformance().getScout().getDetectRangeM());
@@ -157,17 +146,17 @@ void Simulation::run() {
         for (size_t i = 0; i < m_objects.size(); ++i) {
             auto *scout = dynamic_cast<ScoutObject *>(m_objects[i].get());
             if (scout) {
-                scout->updateDetection(time_sec, spatial_hash, m_object_ptrs, static_cast<int>(i), m_event_out);
+                scout->updateDetection(time_sec, spatial_hash, m_object_ptrs, static_cast<int>(i));
             }
         }
 
         for (auto &obj : m_objects) {
             auto *attacker = dynamic_cast<AttackerObject *>(obj.get());
             if (attacker) {
-                attacker->emitDetonation(time_sec, m_event_out);
+                attacker->emitDetonation(time_sec);
             }
         }
 
-        writeTimelineLog(time_sec, m_object_ptrs, *this, m_timeline_out);
+        m_timeline_logger.write(time_sec, m_object_ptrs, *this);
     }
 }

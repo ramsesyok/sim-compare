@@ -1,8 +1,10 @@
 #include "catch_amalgamated.hpp"
 
-#include <sstream>
+#include <filesystem>
+#include <fstream>
 
 #include "attacker_object.hpp"
+#include "logging.hpp"
 
 TEST_CASE("AttackerObjectは到達後に一度だけ爆破ログを出力すること", "[attacker_object]") {
     // 爆破イベントが一度だけ出力されることを確認し、二重出力を防ぐ設計を検証します。
@@ -18,13 +20,20 @@ TEST_CASE("AttackerObjectは到達後に一度だけ爆破ログを出力する�
 
     obj.updatePosition(1);
 
-    std::ostringstream out;
-    obj.emitDetonation(1, out);
-    std::string first = out.str();
+    auto path = std::filesystem::temp_directory_path() / "sim_compare_attacker_event.log";
+    EventLogger::instance().open(path.string());
 
-    obj.emitDetonation(2, out);
-    std::string second = out.str();
+    obj.emitDetonation(1);
+    obj.emitDetonation(2);
 
-    REQUIRE_FALSE(first.empty());
-    REQUIRE(first == second);
+    std::ifstream in(path);
+    std::string line1;
+    std::string line2;
+    std::getline(in, line1);
+    std::getline(in, line2);
+
+    EventLogger::instance().close();
+
+    REQUIRE_FALSE(line1.empty());
+    REQUIRE(line2.empty());
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ostream>
-
 #include "movable_object.hpp"
 
 // 攻撃役の移動と爆破ログの出力を扱うクラスです。
@@ -17,7 +15,7 @@ public:
                    double total_duration_sec,
                    int bom_range_m);
 
-    void emitDetonation(int time_sec, std::ostream &event_out);
+    void emitDetonation(int time_sec);
 
 private:
     int m_bom_range_m = 0;

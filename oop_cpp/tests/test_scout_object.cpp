@@ -1,8 +1,10 @@
 #include "catch_amalgamated.hpp"
 
-#include <sstream>
+#include <filesystem>
+#include <fstream>
 
 #include "commander_object.hpp"
+#include "logging.hpp"
 #include "scout_object.hpp"
 #include "spatial_hash.hpp"
 
@@ -22,9 +24,15 @@ TEST_CASE("ScoutObjectは敵が範囲内に入ると探知イベントを出力�
     std::vector<SimObject *> objects{&scout, &enemy};
     auto spatial_hash = buildSpatialHash(objects, 100.0);
 
-    std::ostringstream out;
-    scout.updateDetection(0, spatial_hash, objects, 0, out);
+    auto path = std::filesystem::temp_directory_path() / "sim_compare_scout_event.log";
+    EventLogger::instance().open(path.string());
 
-    std::string log = out.str();
+    scout.updateDetection(0, spatial_hash, objects, 0);
+
+    std::ifstream in(path);
+    std::string log;
+    std::getline(in, log);
+
+    EventLogger::instance().close();
     REQUIRE(log.find("\"detection_action\":\"found\"") != std::string::npos);
 }
