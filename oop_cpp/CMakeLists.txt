@@ -22,14 +22,14 @@ add_library(oop_cpp_lib
 )
 
 target_include_directories(oop_cpp_lib PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
 )
 
 add_executable(oop_cpp_sim main.cpp)
 target_link_libraries(oop_cpp_sim PRIVATE oop_cpp_lib)
 target_include_directories(oop_cpp_sim PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
 )
 
@@ -46,7 +46,7 @@ add_executable(oop_cpp_tests
     tests/catch_amalgamated.cpp
 )
 target_include_directories(oop_cpp_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
     ${CMAKE_CURRENT_SOURCE_DIR}/tests
 )
