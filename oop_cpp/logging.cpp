@@ -3,6 +3,9 @@
 #include <iomanip>
 #include <stdexcept>
 
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
+
 #include "geo.hpp"
 #include "sim_object.hpp"
 #include "simulation.hpp"
@@ -10,11 +13,12 @@
 
 void TimelineLogger::open(const std::string &path) {
     // タイムラインログの出力先を開き、失敗した場合は例外で通知します。
-    m_out.open(path);
-    if (!m_out) {
-        throw std::runtime_error("timeline: failed to open " + path);
-    }
-    m_out << std::setprecision(10);
+    m_logger.reset();
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path, true);
+    m_logger = std::make_shared<spdlog::logger>("timeline_logger", sink);
+    m_logger->set_level(spdlog::level::info);
+    m_logger->set_pattern("%v");
+    m_logger->flush_on(spdlog::level::info);
 }
 
 void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects, const Simulation &simulation) {
@@ -42,7 +46,10 @@ void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects
     timeline.setPositions(positions);
     nlohmann::json json_timeline;
     simoop::to_json(json_timeline, timeline);
-    m_out << json_timeline.dump() << '\n';
+    if (!m_logger) {
+        throw std::runtime_error("timeline: logger is not initialized");
+    }
+    m_logger->info("{}", json_timeline.dump());
 }
 
 EventLogger &EventLogger::instance() {

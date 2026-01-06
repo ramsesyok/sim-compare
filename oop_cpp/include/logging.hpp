@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -8,6 +9,9 @@
 
 class SimObject;
 class Simulation;
+namespace spdlog {
+class logger;
+}
 
 /**
  * @brief タイムラインログの出力を専用クラスにまとめ、入出力の責務を独立させます。
@@ -24,7 +28,10 @@ public:
     void write(int time_sec, const std::vector<SimObject *> &objects, const Simulation &simulation);
 
 private:
-    std::ofstream m_out{};
+    /**
+     * @brief spdlogのロガーを保持し、ファイル出力を統一します。
+     */
+    std::shared_ptr<spdlog::logger> m_logger{};
 };
 
 /**
