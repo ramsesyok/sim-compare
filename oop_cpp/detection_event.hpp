@@ -20,6 +20,9 @@ namespace simoop
 
 #ifndef NLOHMANN_UNTYPED_simoop_HELPER
 #define NLOHMANN_UNTYPED_simoop_HELPER
+    /**
+     * @brief 任意型の値を取得するための補助関数です。
+     */
     inline json get_untyped(const json &j, const char *property)
     {
         if (j.find(property) != j.end())
@@ -29,6 +32,9 @@ namespace simoop
         return json();
     }
 
+    /**
+     * @brief 文字列キー版の任意型取得ヘルパーです。
+     */
     inline json get_untyped(const json &j, std::string property)
     {
         return get_untyped(j, property.data());
@@ -140,6 +146,9 @@ namespace simoop
     void from_json(const json &j, DetectionAction &x);
     void to_json(json &j, const DetectionAction &x);
 
+    /**
+     * @brief DetectionEventをJSONから生成します。
+     */
     inline void from_json(const json &j, DetectionEvent &x)
     {
         x.setAltM(j.at("alt_m").get<double>());
@@ -153,6 +162,9 @@ namespace simoop
         x.setTimeSec(j.at("time_sec").get<int64_t>());
     }
 
+    /**
+     * @brief DetectionEventをJSONへ変換します。
+     */
     inline void to_json(json &j, const DetectionEvent &x)
     {
         j = json::object();
@@ -167,6 +179,9 @@ namespace simoop
         j["time_sec"] = x.getTimeSec();
     }
 
+    /**
+     * @brief DetectionAction列挙体をJSONから生成します。
+     */
     inline void from_json(const json &j, DetectionAction &x)
     {
         if (j == "found")
@@ -179,6 +194,9 @@ namespace simoop
         }
     }
 
+    /**
+     * @brief DetectionAction列挙体をJSONへ変換します。
+     */
     inline void to_json(json &j, const DetectionAction &x)
     {
         switch (x)

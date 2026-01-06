@@ -20,8 +20,14 @@
 namespace nlohmann
 {
     template <typename T>
+    /**
+     * @brief shared_ptr用のJSON変換を定義するシリアライザです。
+     */
     struct adl_serializer<std::shared_ptr<T>>
     {
+        /**
+         * @brief shared_ptrをJSONへ変換します。
+         */
         static void to_json(json &j, const std::shared_ptr<T> &opt)
         {
             if (!opt)
@@ -30,6 +36,9 @@ namespace nlohmann
                 j = *opt;
         }
 
+        /**
+         * @brief JSONからshared_ptrを復元します。
+         */
         static std::shared_ptr<T> from_json(const json &j)
         {
             if (j.is_null())
@@ -39,8 +48,14 @@ namespace nlohmann
         }
     };
     template <typename T>
+    /**
+     * @brief optional用のJSON変換を定義するシリアライザです。
+     */
     struct adl_serializer<std::optional<T>>
     {
+        /**
+         * @brief optionalをJSONへ変換します。
+         */
         static void to_json(json &j, const std::optional<T> &opt)
         {
             if (!opt)
@@ -49,6 +64,9 @@ namespace nlohmann
                 j = *opt;
         }
 
+        /**
+         * @brief JSONからoptionalを復元します。
+         */
         static std::optional<T> from_json(const json &j)
         {
             if (j.is_null())
@@ -66,6 +84,9 @@ namespace simoop
 
 #ifndef NLOHMANN_UNTYPED_simoop_HELPER
 #define NLOHMANN_UNTYPED_simoop_HELPER
+    /**
+     * @brief 任意型の値を取得するための補助関数です。
+     */
     inline json get_untyped(const json &j, const char *property)
     {
         if (j.find(property) != j.end())
@@ -75,6 +96,9 @@ namespace simoop
         return json();
     }
 
+    /**
+     * @brief 文字列キー版の任意型取得ヘルパーです。
+     */
     inline json get_untyped(const json &j, std::string property)
     {
         return get_untyped(j, property.data());
@@ -84,6 +108,9 @@ namespace simoop
 #ifndef NLOHMANN_OPTIONAL_simoop_HELPER
 #define NLOHMANN_OPTIONAL_simoop_HELPER
     template <typename T>
+    /**
+     * @brief optional値をshared_ptrとして取得するヘルパーです。
+     */
     inline std::shared_ptr<T> get_heap_optional(const json &j, const char *property)
     {
         auto it = j.find(property);
@@ -95,11 +122,17 @@ namespace simoop
     }
 
     template <typename T>
+    /**
+     * @brief 文字列キー版のshared_ptr取得ヘルパーです。
+     */
     inline std::shared_ptr<T> get_heap_optional(const json &j, std::string property)
     {
         return get_heap_optional<T>(j, property.data());
     }
     template <typename T>
+    /**
+     * @brief optional値をスタック上のoptionalとして取得するヘルパーです。
+     */
     inline std::optional<T> get_stack_optional(const json &j, const char *property)
     {
         auto it = j.find(property);
@@ -111,6 +144,9 @@ namespace simoop
     }
 
     template <typename T>
+    /**
+     * @brief 文字列キー版のoptional取得ヘルパーです。
+     */
     inline std::optional<T> get_stack_optional(const json &j, std::string property)
     {
         return get_stack_optional<T>(j, property.data());
@@ -433,34 +469,52 @@ namespace simoop
     void from_json(const json &j, Role &x);
     void to_json(json &j, const Role &x);
 
+    /**
+     * @brief AttackerをJSONから生成します。
+     */
     inline void from_json(const json &j, Attacker &x)
     {
         x.setBomRangeM(j.at("bom_range_m").get<int64_t>());
     }
 
+    /**
+     * @brief AttackerをJSONへ変換します。
+     */
     inline void to_json(json &j, const Attacker &x)
     {
         j = json::object();
         j["bom_range_m"] = x.getBomRangeM();
     }
 
+    /**
+     * @brief MessengerをJSONから生成します。
+     */
     inline void from_json(const json &j, Messenger &x)
     {
         x.setCommRangeM(j.at("comm_range_m").get<int64_t>());
     }
 
+    /**
+     * @brief MessengerをJSONへ変換します。
+     */
     inline void to_json(json &j, const Messenger &x)
     {
         j = json::object();
         j["comm_range_m"] = x.getCommRangeM();
     }
 
+    /**
+     * @brief ScoutをJSONから生成します。
+     */
     inline void from_json(const json &j, Scout &x)
     {
         x.setCommRangeM(j.at("comm_range_m").get<int64_t>());
         x.setDetectRangeM(j.at("detect_range_m").get<int64_t>());
     }
 
+    /**
+     * @brief ScoutをJSONへ変換します。
+     */
     inline void to_json(json &j, const Scout &x)
     {
         j = json::object();
@@ -468,6 +522,9 @@ namespace simoop
         j["detect_range_m"] = x.getDetectRangeM();
     }
 
+    /**
+     * @brief PerformanceをJSONから生成します。
+     */
     inline void from_json(const json &j, Performance &x)
     {
         x.setAttacker(j.at("attacker").get<Attacker>());
@@ -475,6 +532,9 @@ namespace simoop
         x.setScout(j.at("scout").get<Scout>());
     }
 
+    /**
+     * @brief PerformanceをJSONへ変換します。
+     */
     inline void to_json(json &j, const Performance &x)
     {
         j = json::object();
@@ -483,6 +543,9 @@ namespace simoop
         j["scout"] = x.getScout();
     }
 
+    /**
+     * @brief WaypointをJSONから生成します。
+     */
     inline void from_json(const json &j, Waypoint &x)
     {
         x.setAltM(j.at("alt_m").get<double>());
@@ -491,6 +554,9 @@ namespace simoop
         x.setSpeedsKph(j.at("speeds_kph").get<double>());
     }
 
+    /**
+     * @brief WaypointをJSONへ変換します。
+     */
     inline void to_json(json &j, const Waypoint &x)
     {
         j = json::object();
@@ -500,6 +566,9 @@ namespace simoop
         j["speeds_kph"] = x.getSpeedsKph();
     }
 
+    /**
+     * @brief ObjectをJSONから生成します。
+     */
     inline void from_json(const json &j, Object &x)
     {
         x.setId(j.at("id").get<std::string>());
@@ -509,6 +578,9 @@ namespace simoop
         x.setStartSec(j.at("start_sec").get<int64_t>());
     }
 
+    /**
+     * @brief ObjectをJSONへ変換します。
+     */
     inline void to_json(json &j, const Object &x)
     {
         j = json::object();
@@ -519,6 +591,9 @@ namespace simoop
         j["start_sec"] = x.getStartSec();
     }
 
+    /**
+     * @brief TeamをJSONから生成します。
+     */
     inline void from_json(const json &j, Team &x)
     {
         x.setId(j.at("id").get<std::string>());
@@ -526,6 +601,9 @@ namespace simoop
         x.setObjects(j.at("objects").get<std::vector<Object>>());
     }
 
+    /**
+     * @brief TeamをJSONへ変換します。
+     */
     inline void to_json(json &j, const Team &x)
     {
         j = json::object();
@@ -534,12 +612,18 @@ namespace simoop
         j["objects"] = x.getObjects();
     }
 
+    /**
+     * @brief ScenarioをJSONから生成します。
+     */
     inline void from_json(const json &j, Scenario &x)
     {
         x.setPerformance(j.at("performance").get<Performance>());
         x.setTeams(j.at("teams").get<std::vector<Team>>());
     }
 
+    /**
+     * @brief ScenarioをJSONへ変換します。
+     */
     inline void to_json(json &j, const Scenario &x)
     {
         j = json::object();
@@ -547,6 +631,9 @@ namespace simoop
         j["teams"] = x.getTeams();
     }
 
+    /**
+     * @brief Role列挙体をJSONから生成します。
+     */
     inline void from_json(const json &j, Role &x)
     {
         if (j == "attacker")
@@ -563,6 +650,9 @@ namespace simoop
         }
     }
 
+    /**
+     * @brief Role列挙体をJSONへ変換します。
+     */
     inline void to_json(json &j, const Role &x)
     {
         switch (x)

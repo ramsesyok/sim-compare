@@ -2,10 +2,16 @@
 
 #include "movable_object.hpp"
 
-// 攻撃役の移動と爆破ログの出力を扱うクラスです。
-// MovableObjectの移動に加えて「到達時の爆破」という責務を追加する設計です。
+/**
+ * @brief 攻撃役の移動と爆破ログの出力を扱うクラスです。
+ *
+ * @details MovableObjectの移動に加えて「到達時の爆破」という責務を追加する設計です。
+ */
 class AttackerObject : public MovableObject {
 public:
+    /**
+     * @brief 爆破範囲を含めて初期化します。
+     */
     AttackerObject(std::string id,
                    std::string team_id,
                    int start_sec,
@@ -15,6 +21,9 @@ public:
                    double total_duration_sec,
                    int bom_range_m);
 
+    /**
+     * @brief 到達後に一度だけ爆破イベントを出力します。
+     */
     void emitDetonation(int time_sec);
 
 private:

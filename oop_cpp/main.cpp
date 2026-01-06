@@ -4,12 +4,18 @@
 
 #include "simulation.hpp"
 
+/**
+ * @brief CLI引数の受け取り先をまとめる構造体です。
+ */
 struct CliArgs {
     std::string scenario_path;
     std::string timeline_path;
     std::string event_path;
 };
 
+/**
+ * @brief CLI引数を解析してシミュレーションの入力を整理します。
+ */
 static CliArgs parseArgs(int argc, char **argv) {
     CliArgs args;
     for (int i = 1; i < argc; ++i) {
@@ -30,6 +36,9 @@ static CliArgs parseArgs(int argc, char **argv) {
     return args;
 }
 
+/**
+ * @brief アプリケーションのエントリポイントです。
+ */
 int main(int argc, char **argv) {
     try {
         CliArgs args = parseArgs(argc, argv);

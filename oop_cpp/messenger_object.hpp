@@ -2,10 +2,16 @@
 
 #include "movable_object.hpp"
 
-// 伝令役の移動を扱うクラスで、通信動作は今後の拡張に備えて保持します。
-// 移動ロジックは親クラスに任せ、役割固有の属性だけをこのクラスで持ちます。
+/**
+ * @brief 伝令役の移動を扱うクラスで、通信動作は今後の拡張に備えて保持します。
+ *
+ * @details 移動ロジックは親クラスに任せ、役割固有の属性だけをこのクラスで持ちます。
+ */
 class MessengerObject : public MovableObject {
 public:
+    /**
+     * @brief 伝令役の通信性能を含めて初期化します。
+     */
     MessengerObject(std::string id,
                     std::string team_id,
                     int start_sec,

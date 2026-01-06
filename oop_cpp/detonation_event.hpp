@@ -20,6 +20,9 @@ namespace simoop
 
 #ifndef NLOHMANN_UNTYPED_simoop_HELPER
 #define NLOHMANN_UNTYPED_simoop_HELPER
+    /**
+     * @brief 任意型の値を取得するための補助関数です。
+     */
     inline json get_untyped(const json &j, const char *property)
     {
         if (j.find(property) != j.end())
@@ -29,6 +32,9 @@ namespace simoop
         return json();
     }
 
+    /**
+     * @brief 文字列キー版の任意型取得ヘルパーです。
+     */
     inline json get_untyped(const json &j, std::string property)
     {
         return get_untyped(j, property.data());
@@ -110,6 +116,9 @@ namespace simoop
     void from_json(const json &j, DetonationEvent &x);
     void to_json(json &j, const DetonationEvent &x);
 
+    /**
+     * @brief DetonationEventをJSONから生成します。
+     */
     inline void from_json(const json &j, DetonationEvent &x)
     {
         x.setAltM(j.at("alt_m").get<double>());
@@ -121,6 +130,9 @@ namespace simoop
         x.setTimeSec(j.at("time_sec").get<int64_t>());
     }
 
+    /**
+     * @brief DetonationEventをJSONへ変換します。
+     */
     inline void to_json(json &j, const DetonationEvent &x)
     {
         j = json::object();
