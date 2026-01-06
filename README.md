@@ -14,6 +14,10 @@
     - Systemの実装は、Experimentalだが、他との比較のため利用する。
 - Go言語 + [Ark](https://github.com/mlange-42/ark)+[Ark-Tools](https://github.com/mlange-42/ark-tools)
     - Ark-Toolsは、Systemの利用のみに使う。(schedulerは、要件と異なるため使わない)
+- C++ + AOS
+- C++ + SoA
+- C++ + オブジェクト指向(OOP)
+- C++ + [skypjack/EnTT](https://github.com/skypjack/entt)
 
 # 実装時の注意点
 - 並列化は行わない（ライブラリ側で自動で行われる場合を除く）
@@ -25,6 +29,7 @@
     - CLIライブラリ
         - Rustは、[clap](https://github.com/clap-rs/clap)を用いること。
         - Go言語は、[cobra](https://github.com/spf13/cobra)を用いること。
+        - C++は、[CLIUtils/CLI11](https://github.com/CLIUtils/CLI11)を用いること。
 - コメントはすべて日本語で記載する。
 - プログラム初心者でも分かるように、コメントは過剰に記載する。
 - AoSとSoAおよびECSに詳しくない人に向け、メイン処理の冒頭には、各シミュレーションアーキテクチャの特徴を分かりやすく記載すること。
@@ -39,3 +44,7 @@
 - Go言語 + SoA: soa_go
 - Go言語 + donburi: donburi_go
 - Go言語 + ark: ark_go
+- C++ + AoS: aos_cpp
+- C++ + SoA: soa_cpp
+- C++ + OOP: oop_cpp
+- C++ + EnTT: entt_cpp
