@@ -14,7 +14,8 @@ AttackerObject::AttackerObject(std::string id,
                                std::vector<std::string> network,
                                std::vector<double> segment_end_secs,
                                double total_duration_sec,
-                               int bom_range_m)
+                               int bom_range_m,
+                               EventLogger *event_logger)
     : MovableObject(std::move(id),
                     std::move(team_id),
                     simoop::Role::ATTACKER,
@@ -23,12 +24,16 @@ AttackerObject::AttackerObject(std::string id,
                     std::move(network),
                     std::move(segment_end_secs),
                     total_duration_sec),
-      m_bom_range_m(bom_range_m) {}
+      m_bom_range_m(bom_range_m),
+      m_event_logger(event_logger) {}
 
-void AttackerObject::emitDetonation(int time_sec, EventLogger &event_logger) {
+void AttackerObject::emitDetonation(int time_sec) {
     // 爆破イベントは攻撃役の責務として扱い、他クラスには波及させません。
     if (m_has_detonated) {
         return;
+    }
+    if (!m_event_logger) {
+        throw std::runtime_error("attacker: event logger is not initialized");
     }
     if (!std::isfinite(m_total_duration_sec)) {
         return;
@@ -51,6 +56,6 @@ void AttackerObject::emitDetonation(int time_sec, EventLogger &event_logger) {
     event.setBomRangeM(m_bom_range_m);
     nlohmann::json json_event;
     simoop::to_json(json_event, event);
-    event_logger.write(json_event);
+    m_event_logger->write(json_event);
     m_has_detonated = true;
 }

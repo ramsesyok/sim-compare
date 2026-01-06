@@ -16,16 +16,16 @@ TEST_CASE("AttackerObjectは到達後に一度だけ爆破ログを出力する�
     std::vector<RoutePoint> route{a, b};
     std::vector<double> segment_end_secs{1.0};
 
-    AttackerObject obj("atk-1", "team-a", 0, route, {}, segment_end_secs, 1.0, 500);
+    EventLogger logger;
+    AttackerObject obj("atk-1", "team-a", 0, route, {}, segment_end_secs, 1.0, 500, &logger);
 
     obj.updatePosition(1);
 
     auto path = std::filesystem::temp_directory_path() / "sim_compare_attacker_event.log";
-    EventLogger logger;
     logger.open(path.string());
 
-    obj.emitDetonation(1, logger);
-    obj.emitDetonation(2, logger);
+    obj.emitDetonation(1);
+    obj.emitDetonation(2);
 
     std::ifstream in(path);
     std::string line1;

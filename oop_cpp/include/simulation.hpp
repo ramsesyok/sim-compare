@@ -34,7 +34,7 @@ private:
     /**
      * @brief 具体的なオブジェクト生成は内部実装として隠蔽し、呼び出し側を単純にします。
      */
-    std::vector<std::unique_ptr<SimObject>> buildObjects(const simoop::Scenario &scenario) const;
+    std::vector<std::unique_ptr<SimObject>> buildObjects(const simoop::Scenario &scenario);
     /**
      * @brief シナリオを読み込んで内部構造へ変換します。
      */

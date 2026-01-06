@@ -15,7 +15,8 @@ ScoutObject::ScoutObject(std::string id,
                          std::vector<double> segment_end_secs,
                          double total_duration_sec,
                          int detect_range_m,
-                         int comm_range_m)
+                         int comm_range_m,
+                         EventLogger *event_logger)
     : MovableObject(std::move(id),
                     std::move(team_id),
                     simoop::Role::SCOUT,
@@ -25,17 +26,20 @@ ScoutObject::ScoutObject(std::string id,
                     std::move(segment_end_secs),
                     total_duration_sec),
       m_detect_range_m(detect_range_m),
-      m_comm_range_m(comm_range_m) {}
+      m_comm_range_m(comm_range_m),
+      m_event_logger(event_logger) {}
 
 void ScoutObject::updateDetection(
     int time_sec,
     const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash,
     const std::vector<SimObject *> &objects,
-    int self_index,
-    EventLogger &event_logger) {
+    int self_index) {
     // 探知は斥候の責務としてまとめ、他の役割が関与しないようにします。
     if (m_detect_range_m <= 0) {
         return;
+    }
+    if (!m_event_logger) {
+        throw std::runtime_error("scout: event logger is not initialized");
     }
 
     std::unordered_map<std::string, DetectionInfo> current_detected;
@@ -93,7 +97,7 @@ void ScoutObject::updateDetection(
         event.setDetectId(entry.first);
         nlohmann::json json_event;
         simoop::to_json(json_event, event);
-        event_logger.write(json_event);
+        m_event_logger->write(json_event);
     }
 
     for (const auto &entry : m_detect_state) {
@@ -113,7 +117,7 @@ void ScoutObject::updateDetection(
         event.setDetectId(entry.first);
         nlohmann::json json_event;
         simoop::to_json(json_event, event);
-        event_logger.write(json_event);
+        m_event_logger->write(json_event);
     }
 
     m_detect_state = std::move(current_detected);

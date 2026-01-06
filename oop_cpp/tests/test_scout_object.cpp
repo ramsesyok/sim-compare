@@ -14,7 +14,8 @@ TEST_CASE("ScoutObjectは敵が範囲内に入ると探知イベントを出力�
     scout_point.ecef = Ecef{0.0, 0.0, 0.0};
     std::vector<RoutePoint> scout_route{scout_point};
 
-    ScoutObject scout("scout-1", "team-a", 0, scout_route, {}, {}, 0.0, 100, 0);
+    EventLogger logger;
+    ScoutObject scout("scout-1", "team-a", 0, scout_route, {}, {}, 0.0, 100, 0, &logger);
 
     RoutePoint enemy_point;
     enemy_point.ecef = Ecef{10.0, 0.0, 0.0};
@@ -25,10 +26,9 @@ TEST_CASE("ScoutObjectは敵が範囲内に入ると探知イベントを出力�
     auto spatial_hash = buildSpatialHash(objects, 100.0);
 
     auto path = std::filesystem::temp_directory_path() / "sim_compare_scout_event.log";
-    EventLogger logger;
     logger.open(path.string());
 
-    scout.updateDetection(0, spatial_hash, objects, 0, logger);
+    scout.updateDetection(0, spatial_hash, objects, 0);
 
     std::ifstream in(path);
     std::string log;

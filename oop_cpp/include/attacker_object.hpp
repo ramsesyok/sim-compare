@@ -21,14 +21,16 @@ public:
                    std::vector<std::string> network,
                    std::vector<double> segment_end_secs,
                    double total_duration_sec,
-                   int bom_range_m);
+                   int bom_range_m,
+                   EventLogger *event_logger);
 
     /**
      * @brief 到達後に一度だけ爆破イベントを出力します。
      */
-    void emitDetonation(int time_sec, EventLogger &event_logger);
+    void emitDetonation(int time_sec);
 
 private:
     int m_bom_range_m = 0;
     bool m_has_detonated = false;
+    EventLogger *m_event_logger = nullptr;
 };

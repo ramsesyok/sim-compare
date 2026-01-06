@@ -40,7 +40,8 @@ public:
                 std::vector<double> segment_end_secs,
                 double total_duration_sec,
                 int detect_range_m,
-                int comm_range_m);
+                int comm_range_m,
+                EventLogger *event_logger);
 
     /**
      * @brief 近傍探索結果から探知・失探イベントを生成して出力します。
@@ -48,11 +49,11 @@ public:
     void updateDetection(int time_sec,
                          const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash,
                          const std::vector<SimObject *> &objects,
-                         int self_index,
-                         EventLogger &event_logger);
+                         int self_index);
 
 private:
     int m_detect_range_m = 0;
     int m_comm_range_m = 0;
     std::unordered_map<std::string, DetectionInfo> m_detect_state;
+    EventLogger *m_event_logger = nullptr;
 };
