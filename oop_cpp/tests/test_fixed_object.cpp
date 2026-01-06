@@ -10,7 +10,7 @@ TEST_CASE("FixedObjectは常に最初の経路点に固定されること", "[fi
     point.ecef = Ecef{100.0, 200.0, 300.0};
 
     std::vector<RoutePoint> route{point};
-    FixedObject obj("fixed-1", "team-a", simoop::Role::COMMANDER, 0, route, {});
+    FixedObject obj("fixed-1", "team-a", jsonobj::Role::COMMANDER, 0, route, {});
 
     obj.updatePosition(0);
 

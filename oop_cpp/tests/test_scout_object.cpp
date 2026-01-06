@@ -20,7 +20,7 @@ TEST_CASE("ScoutObjectは敵が範囲内に入ると探知イベントを出力�
     RoutePoint enemy_point;
     enemy_point.ecef = Ecef{10.0, 0.0, 0.0};
     std::vector<RoutePoint> enemy_route{enemy_point};
-    CommanderObject enemy("enemy-1", "team-b", simoop::Role::COMMANDER, 0, enemy_route, {});
+    CommanderObject enemy("enemy-1", "team-b", jsonobj::Role::COMMANDER, 0, enemy_route, {});
 
     std::vector<SimObject *> objects{&scout, &enemy};
     auto spatial_hash = buildSpatialHash(objects, 100.0);

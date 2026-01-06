@@ -9,7 +9,7 @@
 #include "geo.hpp"
 #include "sim_object.hpp"
 #include "simulation.hpp"
-#include "timeline.hpp"
+#include "jsonobj/timeline.hpp"
 
 void TimelineLogger::open(const std::string &path) {
     // タイムラインログの出力先を開き、失敗した場合は例外で通知します。
@@ -24,9 +24,9 @@ void TimelineLogger::open(const std::string &path) {
 void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects, const Simulation &simulation) {
     // タイムラインログは1秒ごとの全オブジェクト位置をまとめて出力します。
     // ログ出力を独立した関数にすることで、シミュレーションの責務を分割します。
-    simoop::Timeline timeline;
+    jsonobj::Timeline timeline;
     timeline.setTimeSec(time_sec);
-    std::vector<simoop::TimelinePosition> positions;
+    std::vector<jsonobj::TimelinePosition> positions;
     positions.reserve(objects.size());
     for (size_t i = 0; i < objects.size(); ++i) {
         const SimObject *obj = objects[i];
@@ -34,7 +34,7 @@ void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects
         double lon = 0.0;
         double alt = 0.0;
         ecefToGeodetic(obj->position(), lat, lon, alt);
-        simoop::TimelinePosition position;
+        jsonobj::TimelinePosition position;
         position.setObjectId(obj->id());
         position.setTeamId(obj->teamId());
         position.setRole(simulation.roleToString(obj->role()));
@@ -45,7 +45,7 @@ void TimelineLogger::write(int time_sec, const std::vector<SimObject *> &objects
     }
     timeline.setPositions(positions);
     nlohmann::json json_timeline;
-    simoop::to_json(json_timeline, timeline);
+    jsonobj::to_json(json_timeline, timeline);
     if (!m_logger) {
         throw std::runtime_error("timeline: logger is not initialized");
     }

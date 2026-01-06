@@ -6,7 +6,7 @@
 
 MovableObject::MovableObject(std::string id,
                              std::string team_id,
-                             simoop::Role role,
+                             jsonobj::Role role,
                              int start_sec,
                              std::vector<RoutePoint> route,
                              std::vector<std::string> network,
@@ -19,7 +19,7 @@ MovableObject::MovableObject(std::string id,
 void MovableObject::updatePosition(int time_sec) {
     // 司令官は移動しないため、経路の先頭に固定します。
     // 親クラス側で移動判定を共通化することで、派生クラスの実装を簡素にします。
-    if (m_role == simoop::Role::COMMANDER) {
+    if (m_role == jsonobj::Role::COMMANDER) {
         if (!m_route.empty()) {
             m_position = m_route.front().ecef;
         }

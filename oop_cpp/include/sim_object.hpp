@@ -5,7 +5,7 @@
 
 #include "geo.hpp"
 #include "route.hpp"
-#include "scenario.hpp"
+#include "jsonobj/scenario.hpp"
 
 /**
  * @brief シミュレーション内の共通状態を持つ基底クラスです。
@@ -20,7 +20,7 @@ public:
      */
     SimObject(std::string id,
               std::string team_id,
-              simoop::Role role,
+              jsonobj::Role role,
               int start_sec,
               std::vector<RoutePoint> route,
               std::vector<std::string> network);
@@ -45,7 +45,7 @@ public:
     /**
      * @brief 役割を返します。
      */
-    simoop::Role role() const { return m_role; }
+    jsonobj::Role role() const { return m_role; }
     /**
      * @brief 現在位置を返します。
      */
@@ -57,7 +57,7 @@ protected:
      */
     std::string m_id;
     std::string m_team_id;
-    simoop::Role m_role = simoop::Role::COMMANDER;
+    jsonobj::Role m_role = jsonobj::Role::COMMANDER;
     int m_start_sec = 0;
     std::vector<RoutePoint> m_route;
     std::vector<std::string> m_network;

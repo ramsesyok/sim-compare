@@ -14,12 +14,12 @@
 #include <stdexcept>
 #include <regex>
 
-namespace simoop
+namespace jsonobj
 {
     using nlohmann::json;
 
-#ifndef NLOHMANN_UNTYPED_simoop_HELPER
-#define NLOHMANN_UNTYPED_simoop_HELPER
+#ifndef NLOHMANN_UNTYPED_jsonobj_HELPER
+#define NLOHMANN_UNTYPED_jsonobj_HELPER
     /**
      * @brief 任意型の値を取得するための補助関数です。
      */
@@ -180,7 +180,7 @@ namespace simoop
     };
 }
 
-namespace simoop
+namespace jsonobj
 {
     void from_json(const json &j, TimelinePosition &x);
     void to_json(json &j, const TimelinePosition &x);

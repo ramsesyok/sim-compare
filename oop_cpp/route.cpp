@@ -2,7 +2,7 @@
 
 #include <limits>
 
-std::vector<RoutePoint> buildRoute(const std::vector<simoop::Waypoint> &route) {
+std::vector<RoutePoint> buildRoute(const std::vector<jsonobj::Waypoint> &route) {
     std::vector<RoutePoint> result;
     result.reserve(route.size());
     for (const auto &wp : route) {

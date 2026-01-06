@@ -12,7 +12,7 @@ TEST_CASE("MovableObjectは開始前と完了後で位置が固定されるこ�
     std::vector<RoutePoint> route{a, b};
     std::vector<double> segment_end_secs{1.0};
 
-    MovableObject obj("move-1", "team-a", simoop::Role::MESSENGER, 5, route, {}, segment_end_secs, 1.0);
+    MovableObject obj("move-1", "team-a", jsonobj::Role::MESSENGER, 5, route, {}, segment_end_secs, 1.0);
 
     obj.updatePosition(4);
     REQUIRE(obj.position().x == Catch::Approx(0.0));

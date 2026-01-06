@@ -14,24 +14,24 @@
 #include "sim_object.hpp"
 #include "spatial_hash.hpp"
 
-std::string Simulation::roleToString(simoop::Role role) const
+std::string Simulation::roleToString(jsonobj::Role role) const
 {
     // 役割の文字列化を一箇所にまとめ、ログ出力時の表現を統一します。
     switch (role)
     {
-    case simoop::Role::COMMANDER:
+    case jsonobj::Role::COMMANDER:
         return "commander";
-    case simoop::Role::SCOUT:
+    case jsonobj::Role::SCOUT:
         return "scout";
-    case simoop::Role::MESSENGER:
+    case jsonobj::Role::MESSENGER:
         return "messenger";
-    case simoop::Role::ATTACKER:
+    case jsonobj::Role::ATTACKER:
         return "attacker";
     }
     return "unknown";
 }
 
-std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::Scenario &scenario)
+std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const jsonobj::Scenario &scenario)
 {
     // シナリオ定義を元に、役割に応じた派生クラスを生成します。
     std::vector<std::unique_ptr<SimObject>> objects;
@@ -55,11 +55,11 @@ std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::S
 
             switch (obj.getRole())
             {
-            case simoop::Role::COMMANDER:
+            case jsonobj::Role::COMMANDER:
                 objects.push_back(std::make_unique<CommanderObject>(
                     obj.getId(), team.getId(), obj.getRole(), start_sec, route, network));
                 break;
-            case simoop::Role::SCOUT:
+            case jsonobj::Role::SCOUT:
                 objects.push_back(std::make_unique<ScoutObject>(
                     obj.getId(),
                     team.getId(),
@@ -72,7 +72,7 @@ std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::S
                     static_cast<int>(scenario.getPerformance().getScout().getCommRangeM()),
                     &m_event_logger));
                 break;
-            case simoop::Role::MESSENGER:
+            case jsonobj::Role::MESSENGER:
                 objects.push_back(std::make_unique<MessengerObject>(
                     obj.getId(),
                     team.getId(),
@@ -83,7 +83,7 @@ std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::S
                     total_duration,
                     static_cast<int>(scenario.getPerformance().getMessenger().getCommRangeM())));
                 break;
-            case simoop::Role::ATTACKER:
+            case jsonobj::Role::ATTACKER:
                 objects.push_back(std::make_unique<AttackerObject>(
                     obj.getId(),
                     team.getId(),
@@ -102,7 +102,7 @@ std::vector<std::unique_ptr<SimObject>> Simulation::buildObjects(const simoop::S
     return objects;
 }
 
-simoop::Scenario Simulation::loadScenario(const std::string &path) const
+jsonobj::Scenario Simulation::loadScenario(const std::string &path) const
 {
     // シナリオ読み込みはSimulation内部で完結させ、外部に解析手順を露出しません。
     std::ifstream file(path);
@@ -112,8 +112,8 @@ simoop::Scenario Simulation::loadScenario(const std::string &path) const
     }
     nlohmann::json data;
     file >> data;
-    simoop::Scenario scenario;
-    simoop::from_json(data, scenario);
+    jsonobj::Scenario scenario;
+    jsonobj::from_json(data, scenario);
     return scenario;
 }
 

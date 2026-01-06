@@ -3,7 +3,7 @@
 #include <cmath>
 #include <utility>
 
-#include "detonation_event.hpp"
+#include "jsonobj/detonation_event.hpp"
 #include "logging.hpp"
 #include "geo.hpp"
 
@@ -18,7 +18,7 @@ AttackerObject::AttackerObject(std::string id,
                                EventLogger *event_logger)
     : MovableObject(std::move(id),
                     std::move(team_id),
-                    simoop::Role::ATTACKER,
+                    jsonobj::Role::ATTACKER,
                     start_sec,
                     std::move(route),
                     std::move(network),
@@ -46,7 +46,7 @@ void AttackerObject::emitDetonation(int time_sec) {
     double lon = 0.0;
     double alt = 0.0;
     ecefToGeodetic(m_position, lat, lon, alt);
-    simoop::DetonationEvent event;
+    jsonobj::DetonationEvent event;
     event.setEventType("detonation");
     event.setTimeSec(time_sec);
     event.setAttackerId(m_id);
@@ -55,7 +55,7 @@ void AttackerObject::emitDetonation(int time_sec) {
     event.setAltM(alt);
     event.setBomRangeM(m_bom_range_m);
     nlohmann::json json_event;
-    simoop::to_json(json_event, event);
+    jsonobj::to_json(json_event, event);
     m_event_logger->write(json_event);
     m_has_detonated = true;
 }

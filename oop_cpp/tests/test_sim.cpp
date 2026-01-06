@@ -49,8 +49,8 @@ TEST_CASE("役割の文字列化が期待通りであること", "[simulation]")
     // ログ出力で使う役割文字列が変わらないことを確認します。
     Simulation simulation;
 
-    REQUIRE(simulation.roleToString(simoop::Role::COMMANDER) == "commander");
-    REQUIRE(simulation.roleToString(simoop::Role::SCOUT) == "scout");
-    REQUIRE(simulation.roleToString(simoop::Role::MESSENGER) == "messenger");
-    REQUIRE(simulation.roleToString(simoop::Role::ATTACKER) == "attacker");
+    REQUIRE(simulation.roleToString(jsonobj::Role::COMMANDER) == "commander");
+    REQUIRE(simulation.roleToString(jsonobj::Role::SCOUT) == "scout");
+    REQUIRE(simulation.roleToString(jsonobj::Role::MESSENGER) == "messenger");
+    REQUIRE(simulation.roleToString(jsonobj::Role::ATTACKER) == "attacker");
 }

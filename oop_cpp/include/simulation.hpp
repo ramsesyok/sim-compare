@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "logging.hpp"
-#include "scenario.hpp"
+#include "jsonobj/scenario.hpp"
 #include "sim_object.hpp"
 
 /**
@@ -18,7 +18,7 @@ public:
     /**
      * @brief 役割を文字列に変換する処理は、ログ生成時の共通操作としてまとめています。
      */
-    std::string roleToString(simoop::Role role) const;
+    std::string roleToString(jsonobj::Role role) const;
     /**
      * @brief 初期化ではシナリオ読込と入出力の準備を行い、状態をクラスの内部に保持します。
      */
@@ -34,17 +34,17 @@ private:
     /**
      * @brief 具体的なオブジェクト生成は内部実装として隠蔽し、呼び出し側を単純にします。
      */
-    std::vector<std::unique_ptr<SimObject>> buildObjects(const simoop::Scenario &scenario);
+    std::vector<std::unique_ptr<SimObject>> buildObjects(const jsonobj::Scenario &scenario);
     /**
      * @brief シナリオを読み込んで内部構造へ変換します。
      */
-    simoop::Scenario loadScenario(const std::string &path) const;
+    jsonobj::Scenario loadScenario(const std::string &path) const;
 
     /**
      * @brief 実行に必要な状態をメンバ変数として保持し、関数間で共有します。
      */
     bool m_initialized = false;
-    simoop::Scenario m_scenario{};
+    jsonobj::Scenario m_scenario{};
     std::vector<std::unique_ptr<SimObject>> m_objects{};
     std::vector<SimObject *> m_object_ptrs{};
     TimelineLogger m_timeline_logger{};

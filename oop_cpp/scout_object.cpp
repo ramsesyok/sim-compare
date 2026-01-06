@@ -3,7 +3,7 @@
 #include <cmath>
 #include <utility>
 
-#include "detection_event.hpp"
+#include "jsonobj/detection_event.hpp"
 #include "logging.hpp"
 #include "geo.hpp"
 
@@ -19,7 +19,7 @@ ScoutObject::ScoutObject(std::string id,
                          EventLogger *event_logger)
     : MovableObject(std::move(id),
                     std::move(team_id),
-                    simoop::Role::SCOUT,
+                    jsonobj::Role::SCOUT,
                     start_sec,
                     std::move(route),
                     std::move(network),
@@ -85,9 +85,9 @@ void ScoutObject::updateDetection(
             continue;
         }
         const DetectionInfo &info = entry.second;
-        simoop::DetectionEvent event;
+        jsonobj::DetectionEvent event;
         event.setEventType("detection");
-        event.setDetectionAction(simoop::DetectionAction::FOUND);
+        event.setDetectionAction(jsonobj::DetectionAction::FOUND);
         event.setTimeSec(time_sec);
         event.setScountId(m_id);
         event.setLatDeg(info.lat_deg);
@@ -96,7 +96,7 @@ void ScoutObject::updateDetection(
         event.setDistanceM(info.distance_m);
         event.setDetectId(entry.first);
         nlohmann::json json_event;
-        simoop::to_json(json_event, event);
+        jsonobj::to_json(json_event, event);
         m_event_logger->write(json_event);
     }
 
@@ -105,9 +105,9 @@ void ScoutObject::updateDetection(
             continue;
         }
         const DetectionInfo &info = entry.second;
-        simoop::DetectionEvent event;
+        jsonobj::DetectionEvent event;
         event.setEventType("detection");
-        event.setDetectionAction(simoop::DetectionAction::LOST);
+        event.setDetectionAction(jsonobj::DetectionAction::LOST);
         event.setTimeSec(time_sec);
         event.setScountId(m_id);
         event.setLatDeg(info.lat_deg);
@@ -116,7 +116,7 @@ void ScoutObject::updateDetection(
         event.setDistanceM(info.distance_m);
         event.setDetectId(entry.first);
         nlohmann::json json_event;
-        simoop::to_json(json_event, event);
+        jsonobj::to_json(json_event, event);
         m_event_logger->write(json_event);
     }
 

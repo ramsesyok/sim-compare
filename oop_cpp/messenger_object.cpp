@@ -12,7 +12,7 @@ MessengerObject::MessengerObject(std::string id,
                                  int comm_range_m)
     : MovableObject(std::move(id),
                     std::move(team_id),
-                    simoop::Role::MESSENGER,
+                    jsonobj::Role::MESSENGER,
                     start_sec,
                     std::move(route),
                     std::move(network),

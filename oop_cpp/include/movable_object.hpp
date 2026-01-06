@@ -14,7 +14,7 @@ public:
      */
     MovableObject(std::string id,
                   std::string team_id,
-                  simoop::Role role,
+                  jsonobj::Role role,
                   int start_sec,
                   std::vector<RoutePoint> route,
                   std::vector<std::string> network,

@@ -8,7 +8,7 @@ TEST_CASE("CommanderObjectは固定オブジェクトとして位置が変わら
     point.ecef = Ecef{5.0, 6.0, 7.0};
 
     std::vector<RoutePoint> route{point};
-    CommanderObject obj("cmd-1", "team-a", simoop::Role::COMMANDER, 0, route, {});
+    CommanderObject obj("cmd-1", "team-a", jsonobj::Role::COMMANDER, 0, route, {});
 
     obj.updatePosition(100);
 
