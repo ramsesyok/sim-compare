@@ -21,10 +21,17 @@ add_library(oop_cpp_lib
     attacker_object.cpp
 )
 
-target_include_directories(oop_cpp_lib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(oop_cpp_lib PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
+)
 
 add_executable(oop_cpp_sim main.cpp)
 target_link_libraries(oop_cpp_sim PRIVATE oop_cpp_lib)
+target_include_directories(oop_cpp_sim PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
+)
 
 enable_testing()
 
@@ -38,7 +45,11 @@ add_executable(oop_cpp_tests
     tests/test_scout_object.cpp
     tests/catch_amalgamated.cpp
 )
-target_include_directories(oop_cpp_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+target_include_directories(oop_cpp_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
 target_link_libraries(oop_cpp_tests PRIVATE oop_cpp_lib)
 
 add_test(NAME oop_cpp_tests COMMAND oop_cpp_tests)
