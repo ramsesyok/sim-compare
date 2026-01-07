@@ -1,3 +1,9 @@
+/**
+ * @file main.cpp
+ * @brief EnTT版シミュレーションのエントリポイントです。
+ *
+ * @details CLI引数の解析と実行開始だけを担当し、処理本体はEnttSimulationに委譲します。
+ */
 #include <iostream>
 #include <string>
 
@@ -13,6 +19,11 @@ struct Args {
     std::string event_log_path;
 };
 
+/**
+ * @brief CLI引数を受け取り、シミュレーションを起動します。
+ *
+ * @details 例外処理を行い、入力ミスや実行エラーを利用者に伝えます。
+ */
 int main(int argc, char *argv[]) {
     // ECS(EnTT)ではエンティティとコンポーネントを分離して管理し、役割ごとに処理を分けます。
     // mainは入出力の入口として最小限の責務だけを持ち、実際の更新はEnttSimulationに委譲します。

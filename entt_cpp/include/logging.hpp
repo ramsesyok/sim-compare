@@ -1,3 +1,9 @@
+/**
+ * @file logging.hpp
+ * @brief タイムラインとイベントのログ出力を定義するヘッダです。
+ *
+ * @details ログ出力の責務を分離し、シミュレーション本体の見通しを良くします。
+ */
 #pragma once
 
 #include <memory>

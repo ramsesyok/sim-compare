@@ -1,3 +1,10 @@
+/**
+ * @file ent_simulation.cpp
+ * @brief EnTT版シミュレーション本体の処理をまとめた実装ファイルです。
+ *
+ * @details 初心者が処理の流れを追いやすいように、初期化・更新・イベント発火を
+ *          1つのクラスに集約しています。System専用の型は使わず、関数として実装します。
+ */
 #include "ent_simulation.hpp"
 
 #include <algorithm>
@@ -14,6 +21,11 @@
 #include "route.hpp"
 #include "spatial_hash.hpp"
 
+/**
+ * @brief 役割の列挙値をログ用の文字列へ変換します。
+ *
+ * @details ログ出力で役割名が統一されるように、変換処理を1箇所に固定します。
+ */
 std::string EnttSimulation::roleToString(jsonobj::Role role) const
 {
     // 役割の文字列化を一箇所にまとめて、ログ出力の表記を統一します。
@@ -31,6 +43,11 @@ std::string EnttSimulation::roleToString(jsonobj::Role role) const
     return "unknown";
 }
 
+/**
+ * @brief シナリオJSONを読み込み、内部構造に変換します。
+ *
+ * @details 読み込みの失敗は例外として通知し、呼び出し側が異常を検知できるようにします。
+ */
 jsonobj::Scenario EnttSimulation::loadScenario(const std::string &path) const
 {
     // シナリオ読み込みはEnttSimulation内部で完結させ、外部に解析手順を露出しません。
@@ -46,6 +63,11 @@ jsonobj::Scenario EnttSimulation::loadScenario(const std::string &path) const
     return scenario;
 }
 
+/**
+ * @brief シナリオ内容からレジストリを構築します。
+ *
+ * @details エンティティ生成とコンポーネント付与をまとめて行い、更新ループは単純化します。
+ */
 void EnttSimulation::buildRegistry(const jsonobj::Scenario &scenario)
 {
     // ECSではエンティティに必要なコンポーネントだけを付与します。
@@ -94,6 +116,12 @@ void EnttSimulation::buildRegistry(const jsonobj::Scenario &scenario)
     }
 }
 
+/**
+ * @brief シミュレーション実行に必要な前準備を行います。
+ *
+ * @details ログ出力先の初期化とシナリオ読み込みを先に済ませ、
+ *          runが毎秒の更新だけに集中できるようにします。
+ */
 void EnttSimulation::initialize(const std::string &scenario_path,
                                 const std::string &timeline_path,
                                 const std::string &event_path)
@@ -113,6 +141,11 @@ void EnttSimulation::initialize(const std::string &scenario_path,
     m_initialized = true;
 }
 
+/**
+ * @brief 1秒ごとの更新ループを実行します。
+ *
+ * @details 位置更新・探知・爆破を順番に呼び出し、時間の流れを明確にします。
+ */
 void EnttSimulation::run()
 {
     if (!m_initialized)
@@ -120,14 +153,15 @@ void EnttSimulation::run()
         throw std::runtime_error("simulation: initialize must be called before run");
     }
 
-    // ECSでは役割ごとのシステムに処理を分けるため、
+    // ECSでは「システム=処理のまとまり」を関数として実装し、
     // 1秒ごとの更新も「位置更新」「探知」「爆破」の順で明示的に呼び出します。
-    // EnTTのレジストリはコンポーネント集合をまとめて扱えるため、
-    // ここではエンティティ一覧を基準に順序を固定して処理します。
+    // EnTTはSystem専用の型を用意しないため、ここではレジストリに対する処理を
+    // 手続き的に並べて「更新の流れ」を見える化しています。
     for (int time_sec = 0; time_sec <= m_end_sec; ++time_sec)
     {
-        // ECSでも位置更新は共通のシステムとして扱い、全エンティティを一括で更新します。
-        // これにより、ルート補間の計算を同じ関数に集約し、挙動の追跡を簡単にします。
+        // 位置更新は「Position/Route/Start/Roleを持つエンティティだけ」に適用します。
+        // viewは該当コンポーネントを持つ集合だけを返すので、不要な分岐を減らせます。
+        // ECSでは「必要なデータを持つものだけを対象にする」のが基本です。
         auto view = m_registry.view<RoleComponent,
                                     StartSecComponent,
                                     RouteComponent,
@@ -137,12 +171,18 @@ void EnttSimulation::run()
                       const RouteComponent &route,
                       PositionComponent &pos)
                   {
+                      // 位置計算は純粋計算として切り出し、副作用の場所を明確にします。
                       pos.ecef = updatePositions(role, start, route, time_sec);
                   });
 
+        // 探知処理は近傍探索が重いので、空間ハッシュで候補を絞ります。
+        // ここではセルサイズを「シナリオ共通の探知距離」に合わせています。
+        // 各エンティティごとの距離判定は後段のupdateDetectionsで行います。
         std::unordered_map<CellKey, std::vector<entt::entity>, CellKeyHash> spatial_hash =
             buildSpatialHash(m_registry, m_entities, static_cast<double>(m_detect_range_m));
 
+        // DetectionRangeComponentを持つエンティティだけを対象にします。
+        // ECSでは「役割の分岐」よりも「コンポーネントの有無」で対象を決めます。
         for (entt::entity entity : m_entities)
         {
             if (m_registry.all_of<DetectionRangeComponent>(entity))
@@ -151,6 +191,8 @@ void EnttSimulation::run()
             }
         }
 
+        // DetonationRangeComponentを持つエンティティだけが爆破処理を担当します。
+        // これにより、役割分岐のifを減らし、データ駆動で処理対象を選びます。
         for (entt::entity entity : m_entities)
         {
             if (m_registry.all_of<DetonationRangeComponent>(entity))
@@ -158,10 +200,17 @@ void EnttSimulation::run()
                 emitDetonations(time_sec, entity);
             }
         }
+        // タイムラインは1秒ごとの結果を丸ごと出力します。
+        // 出力のタイミングを統一することで、ログの時系列が揃います。
         m_timeline_logger.write(time_sec, m_registry, m_entities, *this);
     }
 }
 
+/**
+ * @brief 斥候1体分の探知イベントを更新します。
+ *
+ * @details 空間ハッシュで候補を絞り、距離計算とFOUND/LOSTの判定を行います。
+ */
 void EnttSimulation::updateDetections(
     int time_sec,
     entt::entity scout_entity,
@@ -273,6 +322,11 @@ void EnttSimulation::updateDetections(
     previous_detected = std::move(current_detected);
 }
 
+/**
+ * @brief 攻撃役1体分の爆破イベントを発火します。
+ *
+ * @details 既に発火済みかどうかを確認し、1回だけ出力するように制御します。
+ */
 void EnttSimulation::emitDetonations(int time_sec, entt::entity attacker_entity)
 {
     // 爆破イベントは攻撃役の責務として扱い、1回だけ発火させます。
@@ -317,6 +371,11 @@ void EnttSimulation::emitDetonations(int time_sec, entt::entity attacker_entity)
     state.has_detonated = true;
 }
 
+/**
+ * @brief 1体分の位置を計算し、ECEF座標として返します。
+ *
+ * @details 役割と開始時刻、ルート情報から補間位置を求める純粋計算です。
+ */
 Ecef EnttSimulation::updatePositions(const RoleComponent &role,
                                      const StartSecComponent &start,
                                      const RouteComponent &route,

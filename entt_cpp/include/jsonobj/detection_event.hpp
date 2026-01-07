@@ -1,3 +1,9 @@
+/**
+ * @file detection_event.hpp
+ * @brief 探知イベントJSONの型定義をまとめたヘッダです。
+ *
+ * @details 探知・失探のイベントをC++クラスで表現し、JSON変換を簡単にします。
+ */
 //  To parse this JSON data, first install
 //
 //      json.hpp  https://github.com/nlohmann/json

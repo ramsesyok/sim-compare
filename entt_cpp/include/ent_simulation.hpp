@@ -1,3 +1,9 @@
+/**
+ * @file ent_simulation.hpp
+ * @brief EnTT版シミュレーションのクラス宣言をまとめたヘッダです。
+ *
+ * @details 初心者でも責務を追いやすいように、初期化・更新・イベント処理を1つのクラスに整理します。
+ */
 #pragma once
 
 #include <string>
@@ -58,6 +64,11 @@ private:
      * @details 空間ハッシュの近傍だけを調べ、イベント出力を最小限に抑えます。
      */
 
+    /**
+     * @brief 1体分の位置を計算し、ECEF座標として返します。
+     *
+     * @details 役割と開始時刻、ルート情報を入力として、補間結果だけを返す純粋計算です。
+     */
     Ecef updatePositions(const RoleComponent &role,
                          const StartSecComponent &start,
                          const RouteComponent &route,

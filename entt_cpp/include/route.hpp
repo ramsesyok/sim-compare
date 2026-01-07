@@ -1,3 +1,9 @@
+/**
+ * @file route.hpp
+ * @brief ルート情報の変換と区間時間計算の宣言をまとめたヘッダです。
+ *
+ * @details 経路点をECEFに変換し、更新処理で使いやすい形に整えます。
+ */
 #pragma once
 
 #include <utility>

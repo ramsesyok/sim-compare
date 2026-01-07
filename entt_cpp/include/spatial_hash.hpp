@@ -1,3 +1,9 @@
+/**
+ * @file spatial_hash.hpp
+ * @brief 空間ハッシュで近傍探索を行うための宣言をまとめたヘッダです。
+ *
+ * @details 探知対象の候補を減らし、距離計算の回数を抑える目的で使用します。
+ */
 #pragma once
 
 #include <unordered_map>

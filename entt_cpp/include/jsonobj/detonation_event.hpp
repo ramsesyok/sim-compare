@@ -1,3 +1,9 @@
+/**
+ * @file detonation_event.hpp
+ * @brief 爆破イベントJSONの型定義をまとめたヘッダです。
+ *
+ * @details 爆破イベントの出力内容をC++クラスに対応させ、JSON変換を容易にします。
+ */
 //  To parse this JSON data, first install
 //
 //      json.hpp  https://github.com/nlohmann/json

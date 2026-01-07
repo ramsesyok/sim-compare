@@ -12,8 +12,9 @@ EnTTを用いたECS(Entity Component System)構成でシミュレーションを
 - `src/main.cpp`
   - CLI引数を受け取り、ECSのシミュレーション処理へつなぐ入口です。
   - ECSの考え方を初心者向けに説明するコメントを冒頭に置いています。
-- `src/simulation.cpp`
+- `src/ent_simulation.cpp`
   - EnTTのレジストリを使い、役割ごとに処理を分けた更新ループをまとめています。
+  - EnTTはSystem専用の型を用意しないため、更新処理は関数やクラスとして実装しています。
 
 ## ECSの最小イメージ
 ECSでは「エンティティ = ID」「コンポーネント = 属性」「システム = 処理」という分離で考えます。
@@ -26,6 +27,7 @@ Entity[2] = {Position, Role, DetectionState}
 ### 短い補足
 - 位置更新は`Position`を持つエンティティだけを対象にします。
 - 探知は`Role=SCOUT`と`DetectionState`を持つエンティティに限定します。
+  - EnTTが提供するのはレジストリとview/groupによるクエリまでで、Systemはアプリ側で設計します。
 
 ## ビルド・実行
 ```

@@ -1,3 +1,9 @@
+/**
+ * @file ecs_components.hpp
+ * @brief EnTTで使用するコンポーネント型をまとめたヘッダです。
+ *
+ * @details 各コンポーネントは「必要な属性だけを持つ小さな構造体」として定義します。
+ */
 #pragma once
 
 #include <string>

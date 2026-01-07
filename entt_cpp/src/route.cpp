@@ -1,7 +1,18 @@
+/**
+ * @file route.cpp
+ * @brief ルート情報をECEFに展開し、区間時間を計算する実装ファイルです。
+ *
+ * @details ルートの前処理を関数に分離しておくことで、更新ループを簡潔にできます。
+ */
 #include "route.hpp"
 
 #include <limits>
 
+/**
+ * @brief シナリオの経路点をECEFへ変換した配列を作成します。
+ *
+ * @details 変換結果は更新処理で再利用するため、ここで一度だけ計算します。
+ */
 std::vector<RoutePoint> buildRoute(const std::vector<jsonobj::Waypoint> &route) {
     std::vector<RoutePoint> result;
     result.reserve(route.size());
@@ -19,6 +30,11 @@ std::vector<RoutePoint> buildRoute(const std::vector<jsonobj::Waypoint> &route) 
     return result;
 }
 
+/**
+ * @brief ルート区間の終了時刻配列と合計所要時間を計算します。
+ *
+ * @details 1区間ごとの累積時間を先に計算し、位置補間で高速に参照できるようにします。
+ */
 std::pair<std::vector<double>, double> buildSegmentTimes(const std::vector<RoutePoint> &route) {
     if (route.size() < 2) {
         return {std::vector<double>{}, 0.0};

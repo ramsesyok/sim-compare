@@ -1,3 +1,9 @@
+/**
+ * @file logging.cpp
+ * @brief タイムラインとイベントのログ出力を実装するファイルです。
+ *
+ * @details JSON化とファイル出力をここにまとめ、シミュレーション本体から分離します。
+ */
 #include "logging.hpp"
 #include "ent_simulation.hpp"
 
@@ -11,6 +17,11 @@
 #include "geo.hpp"
 #include "jsonobj/timeline.hpp"
 
+/**
+ * @brief タイムラインログの出力先を開きます。
+ *
+ * @details ファイルが開けない場合は例外で通知し、早期に失敗を検知します。
+ */
 void TimelineLogger::open(const std::string &path) {
     // タイムラインログの出力先を開き、失敗したら例外で知らせます。
     m_logger.reset();
@@ -21,6 +32,11 @@ void TimelineLogger::open(const std::string &path) {
     m_logger->flush_on(spdlog::level::info);
 }
 
+/**
+ * @brief 1秒分のタイムライン情報を出力します。
+ *
+ * @details 位置や役割をJSONにまとめ、ndjson形式で1行ずつ書き込みます。
+ */
 void TimelineLogger::write(int time_sec,
                            const entt::registry &registry,
                            const std::vector<entt::entity> &entities,
@@ -64,6 +80,11 @@ void TimelineLogger::write(int time_sec,
     m_logger->info("{}", json_timeline.dump());
 }
 
+/**
+ * @brief イベントログの出力先を開きます。
+ *
+ * @details 非同期ロガーを初期化し、イベントが集中しても書き込みが詰まりにくくします。
+ */
 void EventLogger::open(const std::string &path) {
     // イベントログの出力先を開き、非同期ロガーを準備します。
     if (!spdlog::thread_pool()) {
@@ -86,6 +107,11 @@ void EventLogger::open(const std::string &path) {
     }
 }
 
+/**
+ * @brief イベントJSONを1行で書き出します。
+ *
+ * @details ndjson形式で追記し、後段での解析を容易にします。
+ */
 void EventLogger::write(const nlohmann::json &event) {
     // イベントが発生したときに1行書き出すだけの関数です。
     if (!m_logger) {
@@ -94,6 +120,11 @@ void EventLogger::write(const nlohmann::json &event) {
     m_logger->info("{}", event.dump());
 }
 
+/**
+ * @brief ロガーを明示的に終了します。
+ *
+ * @details プログラム終了時にバッファを確実に出力するために呼び出します。
+ */
 void EventLogger::close() {
     // テストや終了処理で明示的に閉じるために用意しています。
     if (m_logger) {

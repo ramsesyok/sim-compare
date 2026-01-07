@@ -1,3 +1,9 @@
+/**
+ * @file timeline.hpp
+ * @brief タイムライン出力JSONの型定義をまとめたヘッダです。
+ *
+ * @details 1秒ごとの位置ログをC++クラスに対応させ、読み書きを容易にします。
+ */
 //  To parse this JSON data, first install
 //
 //      json.hpp  https://github.com/nlohmann/json

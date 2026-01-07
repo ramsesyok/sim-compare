@@ -1,7 +1,18 @@
+/**
+ * @file geo.cpp
+ * @brief 測地座標とECEF座標の変換処理をまとめた実装ファイルです。
+ *
+ * @details 位置補間や距離計算の土台になるため、計算式を関数として分離しています。
+ */
 #include "geo.hpp"
 
 #include <cmath>
 
+/**
+ * @brief 2点のECEF座標の距離を計算します。
+ *
+ * @details 三次元の差分を合成し、直線距離を返します。
+ */
 double distanceEcef(const Ecef &a, const Ecef &b) {
     // ECEF空間でのユークリッド距離を計算するために、3軸の差分を合成します。
     // 役割によらず共通の計算なので、関数として分離して再利用しやすくします。
@@ -11,6 +22,11 @@ double distanceEcef(const Ecef &a, const Ecef &b) {
     return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
+/**
+ * @brief 緯度経度高度をECEF座標に変換します。
+ *
+ * @details WGS84の定数を用い、測地系から地球中心座標へ変換します。
+ */
 Ecef geodeticToEcef(double lat_deg, double lon_deg, double alt_m) {
     // WGS84の測地座標をECEF座標に変換し、直線補間しやすい形にします。
     // 変換ロジックは共通処理として独立させ、各処理での重複を避けます。
@@ -35,6 +51,11 @@ Ecef geodeticToEcef(double lat_deg, double lon_deg, double alt_m) {
     };
 }
 
+/**
+ * @brief ECEF座標を緯度経度高度に戻します。
+ *
+ * @details 反復計算で緯度と高度を求め、利用しやすい単位に変換します。
+ */
 void ecefToGeodetic(const Ecef &pos, double &lat_deg, double &lon_deg, double &alt_m) {
     // ECEFから緯度経度高度へ戻すため、反復近似で緯度と高度を求めます。
     // 変換は純粋関数として扱い、状態を持たずに呼び出せる形にしています。

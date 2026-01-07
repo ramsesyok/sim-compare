@@ -1,3 +1,9 @@
+/**
+ * @file scenario.hpp
+ * @brief シナリオJSONの読み書きに使う型と変換関数を定義します。
+ *
+ * @details JSONの構造をC++のクラスとして表現し、入出力を統一します。
+ */
 //  To parse this JSON data, first install
 //
 //      json.hpp  https://github.com/nlohmann/json
