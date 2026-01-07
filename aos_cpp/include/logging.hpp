@@ -7,7 +7,7 @@
 #include "spdlog/spdlog.h"
 
 struct AosStorage;
-class Simulation;
+class AosSimulation;
 
 /**
  * @brief 1秒ごとの位置情報をまとめたタイムラインログを出力するためのクラスです。
@@ -28,7 +28,7 @@ public:
      *
      * @details AoSの配列から必要な情報を抜き出し、JSONへまとめて1行で保存します。
      */
-    void write(int time_sec, const AosStorage &storage, const Simulation &simulation);
+    void write(int time_sec, const AosStorage &storage, const AosSimulation &simulation);
 
 private:
     std::shared_ptr<spdlog::logger> m_logger{};

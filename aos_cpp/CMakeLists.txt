@@ -12,7 +12,7 @@ add_executable(aos_cpp_sim
     src/main.cpp
     src/route.cpp
     src/spatial_hash.cpp
-    src/simulation.cpp
+    src/aos_simulation.cpp
 )
 
 target_include_directories(aos_cpp_sim PRIVATE

@@ -1,4 +1,4 @@
-#include "simulation.hpp"
+#include "aos_simulation.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -11,7 +11,7 @@
 #include "route.hpp"
 #include "spatial_hash.hpp"
 
-std::string Simulation::roleToString(jsonobj::Role role) const {
+std::string AosSimulation::roleToString(jsonobj::Role role) const {
     // 役割の文字列化を一箇所にまとめて、ログ出力の表記を統一します。
     switch (role) {
     case jsonobj::Role::COMMANDER:
@@ -26,7 +26,7 @@ std::string Simulation::roleToString(jsonobj::Role role) const {
     return "unknown";
 }
 
-jsonobj::Scenario Simulation::loadScenario(const std::string &path) const {
+jsonobj::Scenario AosSimulation::loadScenario(const std::string &path) const {
     // シナリオ読み込みはSimulation内部で完結させ、外部に解析手順を露出しません。
     std::ifstream file(path);
     if (!file) {
@@ -39,7 +39,7 @@ jsonobj::Scenario Simulation::loadScenario(const std::string &path) const {
     return scenario;
 }
 
-void Simulation::buildStorage(const jsonobj::Scenario &scenario) {
+void AosSimulation::buildStorage(const jsonobj::Scenario &scenario) {
     // シナリオの定義をAoS配列へ展開し、1個体分の情報がまとまるようにします。
     size_t total_objects = 0;
     for (const auto &team : scenario.getTeams()) {
@@ -77,9 +77,9 @@ void Simulation::buildStorage(const jsonobj::Scenario &scenario) {
     }
 }
 
-void Simulation::initialize(const std::string &scenario_path,
-                            const std::string &timeline_path,
-                            const std::string &event_path) {
+void AosSimulation::initialize(const std::string &scenario_path,
+                               const std::string &timeline_path,
+                               const std::string &event_path) {
     // AoS(Array of Structures)では、1個体の状態を1つの構造体にまとめます。
     // これにより「個体ごとの更新処理」が読みやすくなり、状態のまとまりを把握しやすくなります。
     // initializeでは準備に集中し、runではループ本体だけを実行する構成にしています。
@@ -94,7 +94,7 @@ void Simulation::initialize(const std::string &scenario_path,
     m_initialized = true;
 }
 
-void Simulation::run() {
+void AosSimulation::run() {
     if (!m_initialized) {
         throw std::runtime_error("simulation: initialize must be called before run");
     }
@@ -122,7 +122,7 @@ void Simulation::run() {
     }
 }
 
-void Simulation::updatePositions(int time_sec) {
+void AosSimulation::updatePositions(int time_sec) {
     // AoSでは個体単位で状態を更新するため、1件ずつ読みやすく処理できます。
     for (auto &obj : m_storage.objects) {
         if (obj.route.empty()) {
@@ -183,7 +183,7 @@ void Simulation::updatePositions(int time_sec) {
     }
 }
 
-void Simulation::updateDetectionForScout(
+void AosSimulation::updateDetectionForScout(
     int time_sec,
     size_t scout_index,
     const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash) {
@@ -275,7 +275,7 @@ void Simulation::updateDetectionForScout(
     scout.detect_state = std::move(current_detected);
 }
 
-void Simulation::emitDetonationForAttacker(int time_sec, size_t attacker_index) {
+void AosSimulation::emitDetonationForAttacker(int time_sec, size_t attacker_index) {
     // 爆破イベントは攻撃役の責務として扱い、1回だけ発火させます。
     AosObject &attacker = m_storage.objects[attacker_index];
     if (attacker.has_detonated) {

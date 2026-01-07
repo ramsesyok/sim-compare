@@ -12,7 +12,7 @@ AoS(Array of Structures)でシミュレーションを実装するC++版です�
 - `src/main.cpp`
   - CLI引数を受け取り、AoSのシミュレーション処理へつなぐ入口です。
   - AoSの考え方を初心者向けに説明するコメントを冒頭に置いています。
-- `src/simulation.cpp` / `include/simulation.hpp`
+- `src/aos_simulation.cpp` / `include/aos_simulation.hpp`
   - シナリオ読込、AoS配列の初期化、位置更新、探知・爆破イベント生成、ログ出力を担当します。
 - `include/aos_storage.hpp`
   - 1個体分の状態をまとめた構造体とAoS配列を定義します。
