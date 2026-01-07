@@ -191,15 +191,17 @@ void EnttSimulation::run()
             }
         }
 
-        // DetonationRangeComponentを持つエンティティだけが爆破処理を担当します。
-        // これにより、役割分岐のifを減らし、データ駆動で処理対象を選びます。
-        for (entt::entity entity : m_entities)
-        {
-            if (m_registry.all_of<DetonationRangeComponent>(entity))
-            {
-                emitDetonations(time_sec, entity);
-            }
-        }
+        // 爆破は「攻撃役」というロール値で対象を選びます。
+        // Componentの有無ではなく「値でフィルタするクエリ」を示すため、
+        // RoleComponentだけのviewを取り、ロール値を見て分岐します。
+        auto attacker_view = m_registry.view<RoleComponent>();
+        attacker_view.each([&](entt::entity entity, const RoleComponent &role)
+                           {
+                               if (role.value == jsonobj::Role::ATTACKER)
+                               {
+                                   emitDetonations(time_sec, entity);
+                               }
+                           });
         // タイムラインは1秒ごとの結果を丸ごと出力します。
         // 出力のタイミングを統一することで、ログの時系列が揃います。
         m_timeline_logger.write(time_sec, m_registry, m_entities, *this);
