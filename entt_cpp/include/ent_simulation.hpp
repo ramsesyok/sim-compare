@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "ecs_components.hpp"
 #include "entt/entt.hpp"
 #include "jsonobj/scenario.hpp"
 #include "logging.hpp"
@@ -14,7 +15,8 @@
  * @details ECS構成のレジストリをここで保持し、初期化と実行を分離することで、
  *          「準備する処理」と「繰り返し更新する処理」を初心者が区別しやすくします。
  */
-class EnttSimulation {
+class EnttSimulation
+{
 public:
     /**
      * @brief 役割を文字列に変換してログ出力時に利用します。
@@ -51,17 +53,17 @@ private:
      */
     void buildRegistry(const jsonobj::Scenario &scenario);
     /**
-     * @brief 指定時刻に合わせて全オブジェクトの位置を更新します。
-     *
-     * @details ルート補間の手順を1箇所にまとめ、run内の責務を明確化します。
-     */
-    void updatePositions(int time_sec);
-    /**
      * @brief 斥候1体分の探知・失探イベントを生成します。
      *
      * @details 空間ハッシュの近傍だけを調べ、イベント出力を最小限に抑えます。
      */
-    void updateDetectionForScout(
+
+    Ecef updatePositions(const RoleComponent &role,
+                         const StartSecComponent &start,
+                         const RouteComponent &route,
+                         int time_sec);
+
+    void updateDetections(
         int time_sec,
         entt::entity scout_entity,
         const std::unordered_map<CellKey, std::vector<entt::entity>, CellKeyHash> &spatial_hash);
@@ -70,7 +72,7 @@ private:
      *
      * @details 1回だけ発生させるため、内部の状態で再発火を抑制します。
      */
-    void emitDetonationForAttacker(int time_sec, entt::entity attacker_entity);
+    void emitDetonations(int time_sec, entt::entity attacker_entity);
 
     bool m_initialized = false;
     jsonobj::Scenario m_scenario{};

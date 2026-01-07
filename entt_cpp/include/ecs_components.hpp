@@ -80,6 +80,24 @@ struct RouteComponent {
 };
 
 /**
+ * @brief 探知距離を保持するコンポーネントです。
+ *
+ * @details 探知を行うエンティティだけに付与し、処理対象の絞り込みに利用します。
+ */
+struct DetectionRangeComponent {
+    int range_m = 0;
+};
+
+/**
+ * @brief 爆破の有効距離を保持するコンポーネントです。
+ *
+ * @details 爆破を行うエンティティだけに付与し、処理対象の絞り込みに利用します。
+ */
+struct DetonationRangeComponent {
+    int range_m = 0;
+};
+
+/**
  * @brief 探知状態(前回見えていた対象)を保持するコンポーネントです。
  *
  * @details 斥候だけが持つコンポーネントで、失探イベントの判定に使います。
