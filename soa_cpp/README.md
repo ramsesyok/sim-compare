@@ -12,7 +12,7 @@ SoA(Structure of Arrays)でシミュレーションを実装するC++版のひ�
 - `src/main.cpp`
   - CLI引数を受け取り、SoAのシミュレーション処理へつなぐ入口です。
   - SoAの考え方を初心者向けに説明するコメントを冒頭に置いています。
-- `src/simulation.cpp`
+- `src/soa_simulation.cpp`
   - SoAの配列をまとめて走査し、キャッシュ効率と分岐予測の安定性を意識した更新処理をまとめています。
 
 ## SoAとAoSの簡易比較

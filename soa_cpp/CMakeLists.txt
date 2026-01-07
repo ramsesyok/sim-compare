@@ -10,7 +10,7 @@ add_executable(soa_cpp_sim
     src/main.cpp
     src/route.cpp
     src/spatial_hash.cpp
-    src/simulation.cpp
+    src/soa_simulation.cpp
 )
 
 target_include_directories(soa_cpp_sim PRIVATE

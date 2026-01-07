@@ -1,4 +1,4 @@
-#include "simulation.hpp"
+#include "soa_simulation.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -12,7 +12,7 @@
 #include "route.hpp"
 #include "spatial_hash.hpp"
 
-std::string Simulation::roleToString(jsonobj::Role role) const {
+std::string SoaSimulation::roleToString(jsonobj::Role role) const {
     // 役割の文字列化を一箇所にまとめて、ログ出力の表記を統一します。
     switch (role) {
     case jsonobj::Role::COMMANDER:
@@ -27,7 +27,7 @@ std::string Simulation::roleToString(jsonobj::Role role) const {
     return "unknown";
 }
 
-jsonobj::Scenario Simulation::loadScenario(const std::string &path) const {
+jsonobj::Scenario SoaSimulation::loadScenario(const std::string &path) const {
     // シナリオ読み込みはSimulation内部で完結させ、外部に解析手順を露出しません。
     std::ifstream file(path);
     if (!file) {
@@ -40,7 +40,7 @@ jsonobj::Scenario Simulation::loadScenario(const std::string &path) const {
     return scenario;
 }
 
-void Simulation::buildStorage(const jsonobj::Scenario &scenario) {
+void SoaSimulation::buildStorage(const jsonobj::Scenario &scenario) {
     // シナリオの定義をSoA配列へ展開し、後続の更新処理で連続メモリ参照を活用します。
     size_t total_objects = 0;
     for (const auto &team : scenario.getTeams()) {
@@ -127,9 +127,9 @@ void Simulation::buildStorage(const jsonobj::Scenario &scenario) {
     }
 }
 
-void Simulation::initialize(const std::string &scenario_path,
-                            const std::string &timeline_path,
-                            const std::string &event_path) {
+void SoaSimulation::initialize(const std::string &scenario_path,
+                               const std::string &timeline_path,
+                               const std::string &event_path) {
     // SoA(Structure of Arrays)では、属性ごとの配列にデータを並べて管理します。
     // そのため「位置だけ更新する」「通信範囲だけ判定する」といった処理を
     // 連続メモリで高速に行いやすく、シミュレーションの比較検証に役立ちます。
@@ -145,7 +145,7 @@ void Simulation::initialize(const std::string &scenario_path,
     m_initialized = true;
 }
 
-void Simulation::run() {
+void SoaSimulation::run() {
     if (!m_initialized) {
         throw std::runtime_error("simulation: initialize must be called before run");
     }
@@ -181,7 +181,7 @@ void Simulation::run() {
     }
 }
 
-std::vector<Ecef> Simulation::updatePositions(const SoaStorage &storage, int time_sec) const {
+std::vector<Ecef> SoaSimulation::updatePositions(const SoaStorage &storage, int time_sec) const {
     // SoA配列の入力から位置を計算し、副作用なしで結果を返します。
     // これにより同じ入力なら常に同じ出力になるため、挙動の追跡が容易になります。
     // SoAの利点は「属性ごとの配列を連続して走査できること」です。
@@ -269,7 +269,7 @@ std::vector<Ecef> Simulation::updatePositions(const SoaStorage &storage, int tim
     return positions;
 }
 
-void Simulation::updateDetectionForScout(
+void SoaSimulation::updateDetectionForScout(
     int time_sec,
     size_t scout_index,
     const std::unordered_map<CellKey, std::vector<int>, CellKeyHash> &spatial_hash) {
@@ -366,7 +366,7 @@ void Simulation::updateDetectionForScout(
     previous_detected = std::move(current_detected);
 }
 
-void Simulation::emitDetonationForAttacker(int time_sec, size_t attacker_index) {
+void SoaSimulation::emitDetonationForAttacker(int time_sec, size_t attacker_index) {
     // 爆破イベントは攻撃役の責務として扱い、1回だけ発火させます。
     if (m_storage.has_detonated[attacker_index]) {
         return;

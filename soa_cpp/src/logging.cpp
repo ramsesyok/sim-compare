@@ -9,7 +9,7 @@
 #include "geo.hpp"
 #include "jsonobj/timeline.hpp"
 #include "soa_storage.hpp"
-#include "simulation.hpp"
+#include "soa_simulation.hpp"
 
 void TimelineLogger::open(const std::string &path) {
     // タイムラインログの出力先を開き、失敗したら例外で知らせます。
@@ -21,7 +21,7 @@ void TimelineLogger::open(const std::string &path) {
     m_logger->flush_on(spdlog::level::info);
 }
 
-void TimelineLogger::write(int time_sec, const SoaStorage &storage, const Simulation &simulation) {
+void TimelineLogger::write(int time_sec, const SoaStorage &storage, const SoaSimulation &simulation) {
     // 1秒分のタイムラインをJSONにまとめ、ndjsonとして1行で出力します。
     if (!m_logger) {
         throw std::runtime_error("timeline: logger is not initialized");

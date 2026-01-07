@@ -2,7 +2,7 @@
 #include <string>
 
 #include "CLI/CLI11.hpp"
-#include "simulation.hpp"
+#include "soa_simulation.hpp"
 
 /**
  * @brief CLI引数の受け取り先をまとめる構造体です。
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         app.parse(argc, argv);
 
         // mainは入出力の橋渡しだけを担当し、シミュレーション本体の責務はSimulationに委譲します。
-        Simulation simulation;
+        SoaSimulation simulation;
         simulation.initialize(args.scenario_path, args.timeline_log_path, args.event_log_path);
         simulation.run();
     } catch (const CLI::ParseError &error) {

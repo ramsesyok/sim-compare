@@ -7,7 +7,7 @@
 #include "spdlog/spdlog.h"
 
 struct SoaStorage;
-class Simulation;
+class SoaSimulation;
 
 /**
  * @brief 1秒ごとの位置情報をまとめたタイムラインログを出力するためのクラスです。
@@ -28,7 +28,7 @@ public:
      *
      * @details SoA配列から必要な情報を抜き出し、JSONへまとめて1行で保存します。
      */
-    void write(int time_sec, const SoaStorage &storage, const Simulation &simulation);
+    void write(int time_sec, const SoaStorage &storage, const SoaSimulation &simulation);
 
 private:
     std::shared_ptr<spdlog::logger> m_logger{};

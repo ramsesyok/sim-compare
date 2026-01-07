@@ -15,7 +15,7 @@
  * @details SoA構成の配列をここで保持し、初期化と実行を分離することで、
  *          「準備する処理」と「繰り返し更新する処理」を初心者が区別しやすくします。
  */
-class Simulation {
+class SoaSimulation {
 public:
     /**
      * @brief 役割を文字列に変換してログ出力時に利用します。
