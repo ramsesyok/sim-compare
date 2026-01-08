@@ -9,3 +9,4 @@ soa_go_p/soa_go
 ark_go_p/ark_go_p
 donburi_go_p/donburi_go
 build/
+.venv/
